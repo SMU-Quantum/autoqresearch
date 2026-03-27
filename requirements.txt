@@ -1,0 +1,23 @@
+# AutoQResearch dependencies
+# Tested with Python 3.10+
+
+# Core Qiskit
+qiskit
+qiskit-aer
+qiskit-algorithms
+qiskit-optimization
+qiskit-ibm-runtime
+ipykernel
+pylatexenc
+# Scientific
+numpy
+scipy
+networkx
+matplotlib
+cplex
+# Experiment tracking
+GitPython
+
+# Classical solvers (optional, for ground truth)
+# pip install cplex   # IBM CPLEX (free academic license)
+# pip install docplex  # DOcplex modeling

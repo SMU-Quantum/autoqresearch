@@ -1,0 +1,45 @@
+diff --git a/experiment.py b/experiment.py
+index dee20b5..0fbeca2 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -134,6 +134,16 @@ def build_base_policy(problem, family: str) -> dict:
+             "pce_beta": 0.5,
+         }
+     if family == "qrao":
++        n_vars = getattr(problem, "num_variables", 0)
++        if n_vars > 32:
++            return {
++                **common,
++                "qrao_max_vars_per_qubit": 3,
++                "qrac_type": 3,
++                "rounding": "semideterministic",
++                "ansatz_type": "real_amplitudes",
++                "vqe_reps": 1,
++            }
+         return {
+             **common,
+             "qrao_max_vars_per_qubit": 2,
+@@ -173,6 +183,8 @@ def should_continue(
+     if last.optimality_gap <= 0.0:
+         return False
+ 
++    if n_vars > 32:
++        return bool((not last.raw_feasible) or last.optimality_gap > 0.4)
+     return bool((not last.raw_feasible) or last.optimality_gap > 0.6)
+ 
+ 
+@@ -200,6 +212,14 @@ def adapt_policy(
+     last = history[-1]
+ 
+     if (
++        n_vars > 32
++        and policy.get("solver_family") == "qrao"
++        and ((not last.raw_feasible) or last.optimality_gap > 0.4)
++    ):
++        policy["qrao_max_vars_per_qubit"] = 2
++        policy["qrac_type"] = 2
++        policy["rounding"] = "semideterministic"
++    elif (
+         n_vars > 16
+         and policy.get("solver_family") == "qrao"
+         and ((not last.raw_feasible) or last.optimality_gap > 0.6)

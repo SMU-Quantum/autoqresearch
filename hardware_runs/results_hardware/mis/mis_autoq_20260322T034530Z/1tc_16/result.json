@@ -1,0 +1,1948 @@
+{
+  "attempts": [
+    {
+      "attempt": 0,
+      "backend_names": [
+        "ibm_fez",
+        "ibm_marrakesh"
+      ],
+      "best_feasible_ar_global": 1.0,
+      "circuit_depth": 14,
+      "cnot_count": 0,
+      "convergence_improvement": 1.4767475035663338,
+      "convergence_stagnation": 0.2,
+      "estimator_shots": 1024,
+      "final_cost": -6.52734375,
+      "gate_counts": {
+        "p": 16,
+        "r": 48,
+        "rz": 16,
+        "rzz": 22
+      },
+      "job_ids": [
+        "d6vmbqitnsts73etco4g",
+        "d6vmbu0v5rlc73f55ir0",
+        "d6vmc1s69uic73cjf81g",
+        "d6vmc58v5rlc73f55j2g",
+        "d6vmc90v5rlc73f55j6g",
+        "d6vmccgv5rlc73f55ja0",
+        "d6vmcgc69uic73cjf8ig",
+        "d6vmcjqf84ks73dffvfg",
+        "d6vmcnatnsts73etcp40",
+        "d6vmcr2f84ks73dffvn0",
+        "d6vmcuqf84ks73dffvrg",
+        "d6vmd28v5rlc73f55k20",
+        "d6vmd5s69uic73cjf9ag",
+        "d6vmd9itnsts73etcpr0",
+        "d6vmdd0v5rlc73f55ke0",
+        "d6vmdgs69uic73cjf9ng",
+        "d6vmdkk69uic73cjf9u0",
+        "d6vmdo2tnsts73etcq9g",
+        "d6vmdrs69uic73cjfa70",
+        "d6vmdv8v5rlc73f55kvg",
+        "d6vme32f84ks73dfg160",
+        "d6vmebqf84ks73dfg1eg",
+        "d6vmefk69uic73cjfas0",
+        "d6vmej0v5rlc73f55ljg"
+      ],
+      "job_metadata": [
+        {
+          "backend_name": "ibm_fez",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:45:57.900961+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmbqitnsts73etco4g",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:45:45.339523+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "0a0a958d3c2a7a7520bc5b7d3c5b489e077921bd",
+              "backend_name": "ibm_fez",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 318,
+              "transpiled_2q_gates": 64,
+              "transpiled_depth": 111,
+              "transpiled_gate_counts": {
+                "cz": 64,
+                "rz": 144,
+                "sx": 163,
+                "x": 11
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_marrakesh",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:46:12.198525+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmbu0v5rlc73f55ir0",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:45:59.878623+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "239418b159cf2c2cca1c015f8f3986f403d63eb8",
+              "backend_name": "ibm_marrakesh",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 330,
+              "transpiled_2q_gates": 66,
+              "transpiled_depth": 124,
+              "transpiled_gate_counts": {
+                "cz": 66,
+                "rz": 152,
+                "sx": 165,
+                "x": 13
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_fez",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:46:26.513524+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmc1s69uic73cjf81g",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:46:14.079985+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "23ca1713f834350a2e3754de2b29ee6c6c685938",
+              "backend_name": "ibm_fez",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 330,
+              "transpiled_2q_gates": 66,
+              "transpiled_depth": 117,
+              "transpiled_gate_counts": {
+                "cz": 66,
+                "rz": 149,
+                "sx": 166,
+                "x": 15
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_marrakesh",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:46:41.134656+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmc58v5rlc73f55j2g",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:46:28.630257+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "cb799c8ea5afe0b99aedaa2757513fc6805f4e97",
+              "backend_name": "ibm_marrakesh",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 319,
+              "transpiled_2q_gates": 64,
+              "transpiled_depth": 111,
+              "transpiled_gate_counts": {
+                "cz": 64,
+                "rz": 147,
+                "sx": 162,
+                "x": 10
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_fez",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:46:55.866697+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmc90v5rlc73f55j6g",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:46:43.294962+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "fbba321abb7e771d084ed7cb5976359b0c2629dc",
+              "backend_name": "ibm_fez",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 331,
+              "transpiled_2q_gates": 66,
+              "transpiled_depth": 114,
+              "transpiled_gate_counts": {
+                "cz": 66,
+                "rz": 147,
+                "sx": 168,
+                "x": 16
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_marrakesh",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:47:09.973091+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmccgv5rlc73f55ja0",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:46:57.743299+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "d1116b7539b5e127c95ff933c8029b05eb208549",
+              "backend_name": "ibm_marrakesh",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 336,
+              "transpiled_2q_gates": 70,
+              "transpiled_depth": 114,
+              "transpiled_gate_counts": {
+                "cz": 70,
+                "rz": 150,
+                "sx": 170,
+                "x": 16
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_fez",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:47:24.647745+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmcgc69uic73cjf8ig",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:47:12.054315+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "84308f0a1700f4974dd1cd50a0ab0eeb32a6276e",
+              "backend_name": "ibm_fez",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 317,
+              "transpiled_2q_gates": 62,
+              "transpiled_depth": 120,
+              "transpiled_gate_counts": {
+                "cz": 62,
+                "rz": 145,
+                "sx": 163,
+                "x": 9
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_marrakesh",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:47:39.015345+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmcjqf84ks73dffvfg",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:47:26.585241+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "9170d454b86d94dbd3b48f593b49d7157cb7c059",
+              "backend_name": "ibm_marrakesh",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 332,
+              "transpiled_2q_gates": 66,
+              "transpiled_depth": 116,
+              "transpiled_gate_counts": {
+                "cz": 66,
+                "rz": 153,
+                "sx": 166,
+                "x": 13
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_fez",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:47:53.643392+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmcnatnsts73etcp40",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:47:40.813570+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "aa220d8ef4cbdd22fedd7f4f4986c8804606c485",
+              "backend_name": "ibm_fez",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 328,
+              "transpiled_2q_gates": 68,
+              "transpiled_depth": 116,
+              "transpiled_gate_counts": {
+                "cz": 68,
+                "rz": 146,
+                "sx": 169,
+                "x": 13
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_marrakesh",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:48:08.344029+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmcr2f84ks73dffvn0",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:47:55.922588+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "f9469d3c533202a7a649edd54c370f98ae771dc4",
+              "backend_name": "ibm_marrakesh",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 338,
+              "transpiled_2q_gates": 66,
+              "transpiled_depth": 117,
+              "transpiled_gate_counts": {
+                "cz": 66,
+                "rz": 152,
+                "sx": 168,
+                "x": 18
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_marrakesh",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:48:22.775062+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmcuqf84ks73dffvrg",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:48:10.404044+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "9f8fedd7613861ad088f5f0ef846b9d5625aaaf0",
+              "backend_name": "ibm_marrakesh",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 334,
+              "transpiled_2q_gates": 66,
+              "transpiled_depth": 115,
+              "transpiled_gate_counts": {
+                "cz": 66,
+                "rz": 148,
+                "sx": 169,
+                "x": 17
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_marrakesh",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:48:36.920888+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmd28v5rlc73f55k20",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:48:24.568952+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "129c4165a2fa489e8f4f5b8b1d56b553f01504c0",
+              "backend_name": "ibm_marrakesh",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 332,
+              "transpiled_2q_gates": 68,
+              "transpiled_depth": 117,
+              "transpiled_gate_counts": {
+                "cz": 68,
+                "rz": 152,
+                "sx": 166,
+                "x": 14
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_fez",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:48:51.587859+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmd5s69uic73cjf9ag",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:48:39.056064+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "4328ad6bebe3c56365051f61e83865deaae2e9ab",
+              "backend_name": "ibm_fez",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 324,
+              "transpiled_2q_gates": 64,
+              "transpiled_depth": 112,
+              "transpiled_gate_counts": {
+                "cz": 64,
+                "rz": 144,
+                "sx": 165,
+                "x": 15
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_marrakesh",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:49:06.127248+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmd9itnsts73etcpr0",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:48:53.544623+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "4c6b93e00ca0be8905a5ab6f1ff4088094a6de04",
+              "backend_name": "ibm_marrakesh",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 337,
+              "transpiled_2q_gates": 70,
+              "transpiled_depth": 123,
+              "transpiled_gate_counts": {
+                "cz": 70,
+                "rz": 153,
+                "sx": 171,
+                "x": 13
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_fez",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:49:20.503775+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmdd0v5rlc73f55ke0",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:49:07.975458+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "2c23094a14b99dd650b6a424fd476ff01fbad613",
+              "backend_name": "ibm_fez",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 336,
+              "transpiled_2q_gates": 68,
+              "transpiled_depth": 122,
+              "transpiled_gate_counts": {
+                "cz": 68,
+                "rz": 152,
+                "sx": 168,
+                "x": 16
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_marrakesh",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:49:35.313602+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmdgs69uic73cjf9ng",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:49:22.676054+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "3c692c62f8e62a9c25129d14b18bdb2659a36227",
+              "backend_name": "ibm_marrakesh",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 341,
+              "transpiled_2q_gates": 66,
+              "transpiled_depth": 115,
+              "transpiled_gate_counts": {
+                "cz": 66,
+                "rz": 154,
+                "sx": 171,
+                "x": 16
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_fez",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:49:49.704453+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmdkk69uic73cjf9u0",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:49:37.166520+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "bf636ac670d2c730a26020d46d4a2500790d5f4e",
+              "backend_name": "ibm_fez",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 327,
+              "transpiled_2q_gates": 66,
+              "transpiled_depth": 117,
+              "transpiled_gate_counts": {
+                "cz": 66,
+                "rz": 149,
+                "sx": 166,
+                "x": 12
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_marrakesh",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:50:03.881188+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmdo2tnsts73etcq9g",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:49:51.551855+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "c02c0bb39f5ca60c16e117e25e69db30323c60a0",
+              "backend_name": "ibm_marrakesh",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 327,
+              "transpiled_2q_gates": 66,
+              "transpiled_depth": 115,
+              "transpiled_gate_counts": {
+                "cz": 66,
+                "rz": 148,
+                "sx": 166,
+                "x": 13
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_fez",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:50:19.159689+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmdrs69uic73cjfa70",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:50:06.462615+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "58da05517fdd400347987531bdd58c71a06ab726",
+              "backend_name": "ibm_fez",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 338,
+              "transpiled_2q_gates": 70,
+              "transpiled_depth": 123,
+              "transpiled_gate_counts": {
+                "cz": 70,
+                "rz": 154,
+                "sx": 170,
+                "x": 14
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_marrakesh",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:50:33.298200+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmdv8v5rlc73f55kvg",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:50:20.803060+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "d57b19c0a53793e8176b361508d2f04ee908449c",
+              "backend_name": "ibm_marrakesh",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 332,
+              "transpiled_2q_gates": 66,
+              "transpiled_depth": 118,
+              "transpiled_gate_counts": {
+                "cz": 66,
+                "rz": 151,
+                "sx": 166,
+                "x": 15
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_fez",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:51:08.868396+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vme32f84ks73dfg160",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:50:35.073740+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "714a427c775d0dd589668cc5bd065f626baed2fb",
+              "backend_name": "ibm_fez",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 327,
+              "transpiled_2q_gates": 64,
+              "transpiled_depth": 118,
+              "transpiled_gate_counts": {
+                "cz": 64,
+                "rz": 151,
+                "sx": 165,
+                "x": 11
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_marrakesh",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:51:23.414952+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmebqf84ks73dfg1eg",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:51:11.078547+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "477b79d3e12ea9e65150b134ca3c3e2c84d87b80",
+              "backend_name": "ibm_marrakesh",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 325,
+              "transpiled_2q_gates": 62,
+              "transpiled_depth": 117,
+              "transpiled_gate_counts": {
+                "cz": 62,
+                "rz": 152,
+                "sx": 163,
+                "x": 10
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_fez",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:51:38.194287+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmefk69uic73cjfas0",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:51:25.579129+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "3613e86746bf221ec0d7796d1311da99ad510029",
+              "backend_name": "ibm_fez",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 330,
+              "transpiled_2q_gates": 66,
+              "transpiled_depth": 110,
+              "transpiled_gate_counts": {
+                "cz": 66,
+                "rz": 150,
+                "sx": 167,
+                "x": 13
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        },
+        {
+          "backend_name": "ibm_marrakesh",
+          "backend_qubits": 156,
+          "complete_time_utc": "2026-03-22T03:51:52.428174+00:00",
+          "final_status": "DONE",
+          "job_id": "d6vmej0v5rlc73f55ljg",
+          "pending_jobs_at_submit": 0,
+          "primitive": "sampler",
+          "provider": "ibm",
+          "required_qubits": 16,
+          "shots": 1024,
+          "submit_time_utc": "2026-03-22T03:51:39.962565+00:00",
+          "transpile_metrics": [
+            {
+              "ansatz_id": "b560c87e50e177b82a4a9aeb91ab6ee56a64b297",
+              "backend_name": "ibm_marrakesh",
+              "optimization_level": 3,
+              "transpiled_1q_gates": 313,
+              "transpiled_2q_gates": 62,
+              "transpiled_depth": 117,
+              "transpiled_gate_counts": {
+                "cz": 62,
+                "rz": 139,
+                "sx": 164,
+                "x": 10
+              },
+              "transpiled_measurements": 16,
+              "transpiled_num_parameters": 0,
+              "transpiled_num_qubits": 156
+            }
+          ]
+        }
+      ],
+      "learning_score": 0.0,
+      "num_parameters": 2,
+      "num_qubits": 16,
+      "objective_value": 8.0,
+      "optimality_gap": 0.0,
+      "optimization_shots": 23552,
+      "optimizer_iterations": 23,
+      "policy_description": "qaoa variant=warmstart reps=1 cvar_alpha=0.25 ws_source=relaxation",
+      "policy_used": {
+        "cvar_alpha": 0.25,
+        "entanglement": "linear",
+        "estimator_shots": 1024,
+        "learning_rate": 0.05,
+        "measurement_mode": "cvar",
+        "optimizer_maxiter": 150,
+        "optimizer_method": "COBYLA",
+        "optimizer_tol": 0.001,
+        "pce_local_search": false,
+        "reps": 1,
+        "sampler_shots": 1024,
+        "seed": 17,
+        "solver_family": "qaoa",
+        "variant": "warmstart",
+        "ws_epsilon": 0.25,
+        "ws_source": "relaxation"
+      },
+      "raw_ar": 1.0,
+      "raw_feasibility_rate": 0.5546875,
+      "raw_feasible": true,
+      "sampler_shots": 1024,
+      "sampling_shots": 1024,
+      "solver_family": "qaoa",
+      "solver_name": "qaoa_cvar_warmstart",
+      "status": "completed",
+      "top10_summary": [
+        {
+          "count": 33,
+          "feasible": true,
+          "prob": 0.0322,
+          "selected": 8
+        },
+        {
+          "count": 17,
+          "feasible": true,
+          "prob": 0.0166,
+          "selected": 7
+        },
+        {
+          "count": 16,
+          "feasible": true,
+          "prob": 0.0156,
+          "selected": 7
+        },
+        {
+          "count": 14,
+          "feasible": true,
+          "prob": 0.0137,
+          "selected": 7
+        },
+        {
+          "count": 13,
+          "feasible": true,
+          "prob": 0.0127,
+          "selected": 7
+        },
+        {
+          "count": 10,
+          "feasible": true,
+          "prob": 0.0098,
+          "selected": 7
+        },
+        {
+          "count": 9,
+          "feasible": true,
+          "prob": 0.0088,
+          "selected": 6
+        },
+        {
+          "count": 8,
+          "feasible": true,
+          "prob": 0.0078,
+          "selected": 6
+        },
+        {
+          "count": 7,
+          "feasible": true,
+          "prob": 0.0068,
+          "selected": 6
+        },
+        {
+          "count": 7,
+          "feasible": true,
+          "prob": 0.0068,
+          "selected": 5
+        }
+      ],
+      "top1_probability": 0.0322265625,
+      "total_attempt_shots": 24576,
+      "total_gate_count": 102,
+      "two_qubit_gate_count": 22,
+      "wall_time_s": 369.73257303237915
+    }
+  ],
+  "best_result": {
+    "approx_ratio": 1.0,
+    "attempt": 0,
+    "best_bitstring": [
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      1
+    ],
+    "circuit_depth": 14,
+    "cnot_count": 0,
+    "counts_unique_bitstrings": 664,
+    "feasibility_rate": 0.5546875,
+    "feasible": true,
+    "gate_counts": {
+      "p": 16,
+      "r": 48,
+      "rz": 16,
+      "rzz": 22
+    },
+    "metadata": {
+      "cvar_alpha": 0.25,
+      "ma_tying": null,
+      "measurement_mode": "cvar",
+      "reps": 1,
+      "variant": "warmstart",
+      "warm_start_bitstring": [
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1
+      ],
+      "ws_epsilon": 0.25,
+      "ws_source": "relaxation"
+    },
+    "num_parameters": 2,
+    "num_qubits": 16,
+    "objective_value": 8.0,
+    "optimality_gap": 0.0,
+    "solver_name": "qaoa_cvar_warmstart",
+    "total_gate_count": 102,
+    "two_qubit_gate_count": 22,
+    "wall_time_seconds": 0.0
+  },
+  "circuit_metrics": {
+    "best_result_cnot_count": 0,
+    "best_result_depth": 14,
+    "best_result_gate_counts": {
+      "p": 16,
+      "r": 48,
+      "rz": 16,
+      "rzz": 22
+    },
+    "best_result_num_qubits": 16,
+    "best_result_total_gate_count": 102,
+    "best_result_two_qubit_gate_count": 22,
+    "logical_num_variables": 16
+  },
+  "config": {
+    "all_mis": false,
+    "capture_calibration": false,
+    "checkpoint_dir": "/Users/monitsharma/SMU-Quantum/autoqresearch/hardware_runs/checkpoints_autoq",
+    "force_rerun": false,
+    "ibm_credentials_json": "hardware_runs/ibm_credentials.template.json",
+    "ibm_min_runtime_seconds": 60.0,
+    "instance": null,
+    "instance_dir": "/Users/monitsharma/SMU-Quantum/autoqresearch/individual/mis",
+    "job_status_seconds": 120.0,
+    "job_timeout_sec": null,
+    "log_level": "INFO",
+    "max_attempts": 5,
+    "output_root": "/Users/monitsharma/SMU-Quantum/autoqresearch/hardware_runs/results_hardware",
+    "plan_only": false,
+    "policy_file": null,
+    "policy_json": null,
+    "qiskit_optimization_level": 3,
+    "retained_only": true,
+    "seed_override": null,
+    "solver_family": null,
+    "timeout_sec": 43200.0
+  },
+  "device_calibration": null,
+  "execution": {
+    "backend_mode": "hardware",
+    "ibm_credentials_json": "/Users/monitsharma/SMU-Quantum/autoqresearch/hardware_runs/ibm_credentials.template.json",
+    "ibm_min_runtime_seconds": 60.0,
+    "job_status_log_interval_sec": 120.0,
+    "job_timeout_sec": null,
+    "max_attempts": 5,
+    "method": "autoqresearch_adaptive_policy",
+    "policy_mode": "adaptive",
+    "policy_source": "default",
+    "provider": "ibm",
+    "qiskit_optimization_level": 3,
+    "seed_override": null,
+    "timeout_sec": 43200.0
+  },
+  "instance_name": "1tc.16.txt",
+  "instance_path": "/Users/monitsharma/SMU-Quantum/autoqresearch/individual/mis/1tc.16.txt",
+  "job_metadata": [
+    {
+      "backend_name": "ibm_fez",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:45:57.900961+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmbqitnsts73etco4g",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:45:45.339523+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "0a0a958d3c2a7a7520bc5b7d3c5b489e077921bd",
+          "backend_name": "ibm_fez",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 318,
+          "transpiled_2q_gates": 64,
+          "transpiled_depth": 111,
+          "transpiled_gate_counts": {
+            "cz": 64,
+            "rz": 144,
+            "sx": 163,
+            "x": 11
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_marrakesh",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:46:12.198525+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmbu0v5rlc73f55ir0",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:45:59.878623+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "239418b159cf2c2cca1c015f8f3986f403d63eb8",
+          "backend_name": "ibm_marrakesh",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 330,
+          "transpiled_2q_gates": 66,
+          "transpiled_depth": 124,
+          "transpiled_gate_counts": {
+            "cz": 66,
+            "rz": 152,
+            "sx": 165,
+            "x": 13
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_fez",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:46:26.513524+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmc1s69uic73cjf81g",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:46:14.079985+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "23ca1713f834350a2e3754de2b29ee6c6c685938",
+          "backend_name": "ibm_fez",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 330,
+          "transpiled_2q_gates": 66,
+          "transpiled_depth": 117,
+          "transpiled_gate_counts": {
+            "cz": 66,
+            "rz": 149,
+            "sx": 166,
+            "x": 15
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_marrakesh",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:46:41.134656+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmc58v5rlc73f55j2g",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:46:28.630257+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "cb799c8ea5afe0b99aedaa2757513fc6805f4e97",
+          "backend_name": "ibm_marrakesh",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 319,
+          "transpiled_2q_gates": 64,
+          "transpiled_depth": 111,
+          "transpiled_gate_counts": {
+            "cz": 64,
+            "rz": 147,
+            "sx": 162,
+            "x": 10
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_fez",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:46:55.866697+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmc90v5rlc73f55j6g",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:46:43.294962+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "fbba321abb7e771d084ed7cb5976359b0c2629dc",
+          "backend_name": "ibm_fez",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 331,
+          "transpiled_2q_gates": 66,
+          "transpiled_depth": 114,
+          "transpiled_gate_counts": {
+            "cz": 66,
+            "rz": 147,
+            "sx": 168,
+            "x": 16
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_marrakesh",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:47:09.973091+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmccgv5rlc73f55ja0",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:46:57.743299+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "d1116b7539b5e127c95ff933c8029b05eb208549",
+          "backend_name": "ibm_marrakesh",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 336,
+          "transpiled_2q_gates": 70,
+          "transpiled_depth": 114,
+          "transpiled_gate_counts": {
+            "cz": 70,
+            "rz": 150,
+            "sx": 170,
+            "x": 16
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_fez",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:47:24.647745+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmcgc69uic73cjf8ig",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:47:12.054315+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "84308f0a1700f4974dd1cd50a0ab0eeb32a6276e",
+          "backend_name": "ibm_fez",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 317,
+          "transpiled_2q_gates": 62,
+          "transpiled_depth": 120,
+          "transpiled_gate_counts": {
+            "cz": 62,
+            "rz": 145,
+            "sx": 163,
+            "x": 9
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_marrakesh",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:47:39.015345+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmcjqf84ks73dffvfg",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:47:26.585241+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "9170d454b86d94dbd3b48f593b49d7157cb7c059",
+          "backend_name": "ibm_marrakesh",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 332,
+          "transpiled_2q_gates": 66,
+          "transpiled_depth": 116,
+          "transpiled_gate_counts": {
+            "cz": 66,
+            "rz": 153,
+            "sx": 166,
+            "x": 13
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_fez",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:47:53.643392+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmcnatnsts73etcp40",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:47:40.813570+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "aa220d8ef4cbdd22fedd7f4f4986c8804606c485",
+          "backend_name": "ibm_fez",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 328,
+          "transpiled_2q_gates": 68,
+          "transpiled_depth": 116,
+          "transpiled_gate_counts": {
+            "cz": 68,
+            "rz": 146,
+            "sx": 169,
+            "x": 13
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_marrakesh",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:48:08.344029+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmcr2f84ks73dffvn0",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:47:55.922588+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "f9469d3c533202a7a649edd54c370f98ae771dc4",
+          "backend_name": "ibm_marrakesh",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 338,
+          "transpiled_2q_gates": 66,
+          "transpiled_depth": 117,
+          "transpiled_gate_counts": {
+            "cz": 66,
+            "rz": 152,
+            "sx": 168,
+            "x": 18
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_marrakesh",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:48:22.775062+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmcuqf84ks73dffvrg",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:48:10.404044+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "9f8fedd7613861ad088f5f0ef846b9d5625aaaf0",
+          "backend_name": "ibm_marrakesh",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 334,
+          "transpiled_2q_gates": 66,
+          "transpiled_depth": 115,
+          "transpiled_gate_counts": {
+            "cz": 66,
+            "rz": 148,
+            "sx": 169,
+            "x": 17
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_marrakesh",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:48:36.920888+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmd28v5rlc73f55k20",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:48:24.568952+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "129c4165a2fa489e8f4f5b8b1d56b553f01504c0",
+          "backend_name": "ibm_marrakesh",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 332,
+          "transpiled_2q_gates": 68,
+          "transpiled_depth": 117,
+          "transpiled_gate_counts": {
+            "cz": 68,
+            "rz": 152,
+            "sx": 166,
+            "x": 14
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_fez",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:48:51.587859+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmd5s69uic73cjf9ag",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:48:39.056064+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "4328ad6bebe3c56365051f61e83865deaae2e9ab",
+          "backend_name": "ibm_fez",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 324,
+          "transpiled_2q_gates": 64,
+          "transpiled_depth": 112,
+          "transpiled_gate_counts": {
+            "cz": 64,
+            "rz": 144,
+            "sx": 165,
+            "x": 15
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_marrakesh",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:49:06.127248+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmd9itnsts73etcpr0",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:48:53.544623+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "4c6b93e00ca0be8905a5ab6f1ff4088094a6de04",
+          "backend_name": "ibm_marrakesh",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 337,
+          "transpiled_2q_gates": 70,
+          "transpiled_depth": 123,
+          "transpiled_gate_counts": {
+            "cz": 70,
+            "rz": 153,
+            "sx": 171,
+            "x": 13
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_fez",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:49:20.503775+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmdd0v5rlc73f55ke0",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:49:07.975458+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "2c23094a14b99dd650b6a424fd476ff01fbad613",
+          "backend_name": "ibm_fez",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 336,
+          "transpiled_2q_gates": 68,
+          "transpiled_depth": 122,
+          "transpiled_gate_counts": {
+            "cz": 68,
+            "rz": 152,
+            "sx": 168,
+            "x": 16
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_marrakesh",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:49:35.313602+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmdgs69uic73cjf9ng",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:49:22.676054+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "3c692c62f8e62a9c25129d14b18bdb2659a36227",
+          "backend_name": "ibm_marrakesh",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 341,
+          "transpiled_2q_gates": 66,
+          "transpiled_depth": 115,
+          "transpiled_gate_counts": {
+            "cz": 66,
+            "rz": 154,
+            "sx": 171,
+            "x": 16
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_fez",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:49:49.704453+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmdkk69uic73cjf9u0",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:49:37.166520+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "bf636ac670d2c730a26020d46d4a2500790d5f4e",
+          "backend_name": "ibm_fez",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 327,
+          "transpiled_2q_gates": 66,
+          "transpiled_depth": 117,
+          "transpiled_gate_counts": {
+            "cz": 66,
+            "rz": 149,
+            "sx": 166,
+            "x": 12
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_marrakesh",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:50:03.881188+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmdo2tnsts73etcq9g",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:49:51.551855+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "c02c0bb39f5ca60c16e117e25e69db30323c60a0",
+          "backend_name": "ibm_marrakesh",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 327,
+          "transpiled_2q_gates": 66,
+          "transpiled_depth": 115,
+          "transpiled_gate_counts": {
+            "cz": 66,
+            "rz": 148,
+            "sx": 166,
+            "x": 13
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_fez",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:50:19.159689+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmdrs69uic73cjfa70",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:50:06.462615+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "58da05517fdd400347987531bdd58c71a06ab726",
+          "backend_name": "ibm_fez",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 338,
+          "transpiled_2q_gates": 70,
+          "transpiled_depth": 123,
+          "transpiled_gate_counts": {
+            "cz": 70,
+            "rz": 154,
+            "sx": 170,
+            "x": 14
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_marrakesh",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:50:33.298200+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmdv8v5rlc73f55kvg",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:50:20.803060+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "d57b19c0a53793e8176b361508d2f04ee908449c",
+          "backend_name": "ibm_marrakesh",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 332,
+          "transpiled_2q_gates": 66,
+          "transpiled_depth": 118,
+          "transpiled_gate_counts": {
+            "cz": 66,
+            "rz": 151,
+            "sx": 166,
+            "x": 15
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_fez",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:51:08.868396+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vme32f84ks73dfg160",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:50:35.073740+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "714a427c775d0dd589668cc5bd065f626baed2fb",
+          "backend_name": "ibm_fez",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 327,
+          "transpiled_2q_gates": 64,
+          "transpiled_depth": 118,
+          "transpiled_gate_counts": {
+            "cz": 64,
+            "rz": 151,
+            "sx": 165,
+            "x": 11
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_marrakesh",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:51:23.414952+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmebqf84ks73dfg1eg",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:51:11.078547+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "477b79d3e12ea9e65150b134ca3c3e2c84d87b80",
+          "backend_name": "ibm_marrakesh",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 325,
+          "transpiled_2q_gates": 62,
+          "transpiled_depth": 117,
+          "transpiled_gate_counts": {
+            "cz": 62,
+            "rz": 152,
+            "sx": 163,
+            "x": 10
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_fez",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:51:38.194287+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmefk69uic73cjfas0",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:51:25.579129+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "3613e86746bf221ec0d7796d1311da99ad510029",
+          "backend_name": "ibm_fez",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 330,
+          "transpiled_2q_gates": 66,
+          "transpiled_depth": 110,
+          "transpiled_gate_counts": {
+            "cz": 66,
+            "rz": 150,
+            "sx": 167,
+            "x": 13
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    },
+    {
+      "backend_name": "ibm_marrakesh",
+      "backend_qubits": 156,
+      "complete_time_utc": "2026-03-22T03:51:52.428174+00:00",
+      "final_status": "DONE",
+      "job_id": "d6vmej0v5rlc73f55ljg",
+      "pending_jobs_at_submit": 0,
+      "primitive": "sampler",
+      "provider": "ibm",
+      "required_qubits": 16,
+      "shots": 1024,
+      "submit_time_utc": "2026-03-22T03:51:39.962565+00:00",
+      "transpile_metrics": [
+        {
+          "ansatz_id": "b560c87e50e177b82a4a9aeb91ab6ee56a64b297",
+          "backend_name": "ibm_marrakesh",
+          "optimization_level": 3,
+          "transpiled_1q_gates": 313,
+          "transpiled_2q_gates": 62,
+          "transpiled_depth": 117,
+          "transpiled_gate_counts": {
+            "cz": 62,
+            "rz": 139,
+            "sx": 164,
+            "x": 10
+          },
+          "transpiled_measurements": 16,
+          "transpiled_num_parameters": 0,
+          "transpiled_num_qubits": 156
+        }
+      ]
+    }
+  ],
+  "log_file": "/Users/monitsharma/SMU-Quantum/autoqresearch/hardware_runs/results_hardware/mis/mis_autoq_20260322T034530Z/run.log",
+  "policy": {
+    "base_policy": {
+      "cvar_alpha": 0.25,
+      "entanglement": "linear",
+      "estimator_shots": 1024,
+      "learning_rate": 0.05,
+      "measurement_mode": "cvar",
+      "optimizer_maxiter": 150,
+      "optimizer_method": "COBYLA",
+      "optimizer_tol": 0.001,
+      "pce_local_search": false,
+      "reps": 1,
+      "sampler_shots": 1024,
+      "seed": 17,
+      "solver_family": "qaoa",
+      "variant": "warmstart",
+      "ws_epsilon": 0.25,
+      "ws_source": "relaxation"
+    },
+    "initial_family": "qaoa",
+    "winning_policy": {
+      "cvar_alpha": 0.25,
+      "entanglement": "linear",
+      "estimator_shots": 1024,
+      "learning_rate": 0.05,
+      "measurement_mode": "cvar",
+      "optimizer_maxiter": 150,
+      "optimizer_method": "COBYLA",
+      "optimizer_tol": 0.001,
+      "pce_local_search": false,
+      "reps": 1,
+      "sampler_shots": 1024,
+      "seed": 17,
+      "solver_family": "qaoa",
+      "variant": "warmstart",
+      "ws_epsilon": 0.25,
+      "ws_source": "relaxation"
+    }
+  },
+  "problem": "mis",
+  "problem_info": {
+    "name": "mis_file_1tc.16",
+    "num_variables": 16,
+    "optimal_value": 8.0
+  },
+  "problem_spec": "mis_file_1tc.16",
+  "qpu_status_snapshot": {
+    "amazon_sv1": {
+      "backend_name": "",
+      "failed_jobs": 0,
+      "is_available": false,
+      "last_error": "Disabled by --only-qpu filter",
+      "max_qubits": 34,
+      "name": "Amazon SV1",
+      "provider": "braket_sim_sv1",
+      "remaining_window_minutes_sgt": null,
+      "successful_jobs": 0,
+      "total_jobs": 0,
+      "total_time_sec": 0.0
+    },
+    "ibm_quantum": {
+      "backend_name": "ibm_fez",
+      "failed_jobs": 0,
+      "is_available": true,
+      "last_error": "",
+      "max_qubits": 156,
+      "name": "IBM Quantum",
+      "provider": "ibm",
+      "remaining_window_minutes_sgt": null,
+      "successful_jobs": 0,
+      "total_jobs": 0,
+      "total_time_sec": 0.0
+    },
+    "iqm_emerald": {
+      "backend_name": "",
+      "failed_jobs": 0,
+      "is_available": false,
+      "last_error": "Disabled by --only-qpu filter",
+      "max_qubits": 54,
+      "name": "IQM Emerald",
+      "provider": "braket_iqm_emerald",
+      "remaining_window_minutes_sgt": 0.0,
+      "successful_jobs": 0,
+      "total_jobs": 0,
+      "total_time_sec": 0.0
+    },
+    "iqm_garnet": {
+      "backend_name": "",
+      "failed_jobs": 0,
+      "is_available": false,
+      "last_error": "Disabled by --only-qpu filter",
+      "max_qubits": 20,
+      "name": "IQM Garnet",
+      "provider": "braket_iqm_garnet",
+      "remaining_window_minutes_sgt": 699.0,
+      "successful_jobs": 0,
+      "total_jobs": 0,
+      "total_time_sec": 0.0
+    },
+    "local_qiskit": {
+      "backend_name": "",
+      "failed_jobs": 0,
+      "is_available": false,
+      "last_error": "Disabled by --only-qpu filter",
+      "max_qubits": 28,
+      "name": "Local Qiskit Statevector Simulator",
+      "provider": "local_qiskit",
+      "remaining_window_minutes_sgt": null,
+      "successful_jobs": 0,
+      "total_jobs": 0,
+      "total_time_sec": 0.0
+    },
+    "rigetti_ankaa3": {
+      "backend_name": "",
+      "failed_jobs": 0,
+      "is_available": false,
+      "last_error": "Disabled by --only-qpu filter",
+      "max_qubits": 82,
+      "name": "Rigetti Ankaa-3",
+      "provider": "braket_rigetti",
+      "remaining_window_minutes_sgt": 189.0,
+      "successful_jobs": 0,
+      "total_jobs": 0,
+      "total_time_sec": 0.0
+    }
+  },
+  "run_directory": "/Users/monitsharma/SMU-Quantum/autoqresearch/hardware_runs/results_hardware/mis/mis_autoq_20260322T034530Z/1tc_16",
+  "run_timestamp_utc": "20260322T034530Z",
+  "schema_version": "1.0",
+  "status": "OK",
+  "timing": {
+    "total_instance_sec": 369.74587082862854
+  }
+}

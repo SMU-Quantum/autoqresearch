@@ -1,0 +1,12 @@
+diff --git a/experiment.py b/experiment.py
+index c680ee4..2d81c43 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -110,6 +110,7 @@ def build_base_policy(problem, family: str) -> dict:
+             "variant": "standard",
+             "ansatz_type": "real_amplitudes",
+             "vqe_reps": 1,
++            "measurement_mode": "cvar",
+         }
+     if family == "qaoa":
+         return {

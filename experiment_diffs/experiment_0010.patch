@@ -1,0 +1,15 @@
+diff --git a/experiment.py b/experiment.py
+index 31b4b3c..dee20b5 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -136,8 +136,8 @@ def build_base_policy(problem, family: str) -> dict:
+     if family == "qrao":
+         return {
+             **common,
+-            "qrao_max_vars_per_qubit": 3,
+-            "qrac_type": 3,
++            "qrao_max_vars_per_qubit": 2,
++            "qrac_type": 2,
+             "rounding": "magic",
+             "ansatz_type": "real_amplitudes",
+             "vqe_reps": 1,

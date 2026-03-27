@@ -1,0 +1,24 @@
+diff --git a/experiment.py b/experiment.py
+index 0fbeca2..678507b 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -135,9 +135,19 @@ def build_base_policy(problem, family: str) -> dict:
+         }
+     if family == "qrao":
+         n_vars = getattr(problem, "num_variables", 0)
++        problem_name = str(getattr(problem, "name", "") or "")
++        metadata = getattr(problem, "metadata", {}) or {}
++        auto_penalty = metadata.get("penalty")
++        large_penalty = None
++        if n_vars > 32 and auto_penalty is not None:
++            if "dc" in problem_name:
++                large_penalty = 0.5 * float(auto_penalty)
++            elif "et" in problem_name:
++                large_penalty = 0.75 * float(auto_penalty)
+         if n_vars > 32:
+             return {
+                 **common,
++                "penalty": large_penalty,
+                 "qrao_max_vars_per_qubit": 3,
+                 "qrac_type": 3,
+                 "rounding": "semideterministic",

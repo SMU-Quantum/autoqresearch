@@ -1,0 +1,5 @@
+stage	suite	split	eval_group_id	family	policy_summary	instance_count	avg_num_qubits	avg_circuit_depth	avg_cnot_count	avg_num_parameters	avg_wall_time
+16-node stage	mis_curriculum_16	train	7	vqe	VQE realamplitudes d=1 COBYLA CVaR(0.25)	5	16.0	17.0	15.0	32.0	61.26119203567505
+32-node stage	mis_curriculum_32	train	19	qrao	QRAO realamplitudes d=1 COBYLA	5	12.8	13.8	11.8	25.6	551.0761868476868
+48-node stage	mis_curriculum_48	train	28	qrao	QRAO realamplitudes d=1 COBYLA	1	24.0	25.0	23.0	48.0	427.2221088409424
+64-node held-out	mis_curriculum_64	test	-64	qrao	QRAO realamplitudes d=1 COBYLA	1					784.8

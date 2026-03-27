@@ -1,0 +1,26 @@
+diff --git a/experiment.py b/experiment.py
+index 0fbeca2..de2da11 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -138,8 +138,8 @@ def build_base_policy(problem, family: str) -> dict:
+         if n_vars > 32:
+             return {
+                 **common,
+-                "qrao_max_vars_per_qubit": 3,
+-                "qrac_type": 3,
++                "qrao_max_vars_per_qubit": 2,
++                "qrac_type": 2,
+                 "rounding": "semideterministic",
+                 "ansatz_type": "real_amplitudes",
+                 "vqe_reps": 1,
+@@ -216,8 +216,8 @@ def adapt_policy(
+         and policy.get("solver_family") == "qrao"
+         and ((not last.raw_feasible) or last.optimality_gap > 0.4)
+     ):
+-        policy["qrao_max_vars_per_qubit"] = 2
+-        policy["qrac_type"] = 2
++        policy["qrao_max_vars_per_qubit"] = 3
++        policy["qrac_type"] = 3
+         policy["rounding"] = "semideterministic"
+     elif (
+         n_vars > 16

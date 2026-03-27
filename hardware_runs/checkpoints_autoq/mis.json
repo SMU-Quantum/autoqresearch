@@ -1,0 +1,18 @@
+{
+  "1tc.16.txt": {
+    "approx_ratio": 1.0,
+    "backends": [
+      "ibm_fez",
+      "ibm_marrakesh"
+    ],
+    "feasible": true,
+    "gap": 0.0,
+    "instance": "1tc.16.txt",
+    "jobs": 24,
+    "objective": 8.0,
+    "qubits": 16,
+    "result_dir": "/Users/monitsharma/SMU-Quantum/autoqresearch/hardware_runs/results_hardware/mis/mis_autoq_20260322T034530Z/1tc_16",
+    "status": "OK",
+    "time_sec": 369.74587082862854
+  }
+}

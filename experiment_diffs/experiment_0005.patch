@@ -1,0 +1,32 @@
+diff --git a/experiment.py b/experiment.py
+index caeb79b..d3b255b 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -78,7 +78,7 @@ def choose_solver_family(problem) -> str:
+     Starting point: always VQE.  The agent should discover when and whether
+     to switch families through experimentation.
+     """
+-    return "vqe"
++    return "qaoa"
+ 
+ 
+ def build_base_policy(problem, family: str) -> dict:
+@@ -111,15 +111,16 @@ def build_base_policy(problem, family: str) -> dict:
+             "ansatz_type": "real_amplitudes",
+             "vqe_reps": 1,
+             "measurement_mode": "cvar",
+-            "cvar_alpha": 0.1,
+         }
+     if family == "qaoa":
+         return {
+             **common,
+-            "variant": "standard",
++            "variant": "warmstart",
+             "reps": 1,
+             "ws_epsilon": 0.25,
+             "ws_source": "relaxation",
++            "measurement_mode": "cvar",
++            "cvar_alpha": 0.25,
+         }
+     if family == "pce":
+         return {

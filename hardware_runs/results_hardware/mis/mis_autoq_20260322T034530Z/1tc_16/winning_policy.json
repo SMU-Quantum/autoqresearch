@@ -1,0 +1,18 @@
+{
+  "cvar_alpha": 0.25,
+  "entanglement": "linear",
+  "estimator_shots": 1024,
+  "learning_rate": 0.05,
+  "measurement_mode": "cvar",
+  "optimizer_maxiter": 150,
+  "optimizer_method": "COBYLA",
+  "optimizer_tol": 0.001,
+  "pce_local_search": false,
+  "reps": 1,
+  "sampler_shots": 1024,
+  "seed": 17,
+  "solver_family": "qaoa",
+  "variant": "warmstart",
+  "ws_epsilon": 0.25,
+  "ws_source": "relaxation"
+}

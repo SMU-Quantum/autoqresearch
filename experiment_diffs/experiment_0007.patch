@@ -1,0 +1,26 @@
+diff --git a/experiment.py b/experiment.py
+index 051c5a7..f7ca96c 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -78,7 +78,9 @@ def choose_solver_family(problem) -> str:
+     Starting point: always VQE.  The agent should discover when and whether
+     to switch families through experimentation.
+     """
+-    return "qaoa"
++    if getattr(problem, "num_variables", 0) <= 16:
++        return "qaoa"
++    return "qrao"
+ 
+ 
+ def build_base_policy(problem, family: str) -> dict:
+@@ -134,8 +136,8 @@ def build_base_policy(problem, family: str) -> dict:
+     if family == "qrao":
+         return {
+             **common,
+-            "qrao_max_vars_per_qubit": 3,
+-            "qrac_type": 3,
++            "qrao_max_vars_per_qubit": 2,
++            "qrac_type": 2,
+             "rounding": "semideterministic",
+             "ansatz_type": "real_amplitudes",
+             "vqe_reps": 1,

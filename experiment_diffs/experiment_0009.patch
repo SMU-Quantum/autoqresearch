@@ -1,0 +1,53 @@
+diff --git a/experiment.py b/experiment.py
+index f7869c4..31b4b3c 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -158,7 +158,22 @@ def should_continue(
+     """
+     if isinstance(problem, (int, np.integer)):
+         max_attempts = int(problem)
+-    return attempt < max_attempts
++    if attempt >= max_attempts:
++        return False
++    if not history:
++        return True
++
++    n_vars = getattr(problem, "num_variables", 0) if problem is not None else 0
++    last = history[-1]
++
++    if n_vars <= 16:
++        return False
++    if attempt >= 2:
++        return False
++    if last.optimality_gap <= 0.0:
++        return False
++
++    return bool((not last.raw_feasible) or last.optimality_gap > 0.6)
+ 
+ 
+ def adapt_policy(
+@@ -177,7 +192,23 @@ def adapt_policy(
+         base_policy = problem
+         problem = None
+ 
+-    return base_policy.copy()
++    policy = base_policy.copy()
++    if attempt == 0 or not history:
++        return policy
++
++    n_vars = getattr(problem, "num_variables", 0) if problem is not None else 0
++    last = history[-1]
++
++    if (
++        n_vars > 16
++        and policy.get("solver_family") == "qrao"
++        and ((not last.raw_feasible) or last.optimality_gap > 0.6)
++    ):
++        policy["qrao_max_vars_per_qubit"] = 2
++        policy["qrac_type"] = 2
++        policy["rounding"] = "semideterministic"
++
++    return policy
+ 
+ 
+ # ═══════════════════════════════════════════════════════════════════

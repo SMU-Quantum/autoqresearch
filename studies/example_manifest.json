@@ -1,0 +1,23 @@
+{
+  "study_id": "knapsack_repr_demo",
+  "output_root": "studies",
+  "problem_type": "knapsack",
+  "sizes": [12],
+  "splits": ["train", "dev", "test"],
+  "variants": [
+    "adaptive_full",
+    "static_final",
+    "static_direct_stage2",
+    "static_basic_vqe",
+    "static_qaoa_standard",
+    "static_qaoa_cvar",
+    "static_qaoa_warmstart",
+    "static_qaoa_multiangle",
+    "static_qrao",
+    "static_pce"
+  ],
+  "max_attempts": 5,
+  "backend": "ideal_mps",
+  "prompt_variant": "full",
+  "include_budget_matched": true
+}

@@ -1,0 +1,50 @@
+diff --git a/experiment.py b/experiment.py
+index c680ee4..306a274 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -152,7 +152,24 @@ def should_continue(
+     """
+     if isinstance(problem, (int, np.integer)):
+         max_attempts = int(problem)
+-    return attempt < max_attempts
++    if attempt >= max_attempts:
++        return False
++    if not history:
++        return True
++
++    last = history[-1]
++    if last.optimality_gap <= 0.0:
++        return False
++    if last.raw_feasible and last.optimality_gap <= 0.125:
++        return False
++    if attempt >= 2:
++        return False
++
++    return bool(
++        (not last.raw_feasible)
++        or (last.optimality_gap > 0.25 and last.convergence_stagnation >= 0.7)
++        or (last.optimality_gap > 0.5 and last.top1_probability >= 0.03)
++    )
+ 
+ 
+ def adapt_policy(
+@@ -171,7 +188,18 @@ def adapt_policy(
+         base_policy = problem
+         problem = None
+ 
+-    return base_policy.copy()
++    policy = base_policy.copy()
++    if attempt == 0 or not history:
++        return policy
++
++    last = history[-1]
++    if (
++        policy.get("solver_family") == "vqe"
++        and last.optimality_gap > 0.25
++        and last.convergence_stagnation >= 0.7
++    ):
++        policy["vqe_reps"] = max(2, int(policy.get("vqe_reps", 1)) + 1)
++    return policy
+ 
+ 
+ # ═══════════════════════════════════════════════════════════════════

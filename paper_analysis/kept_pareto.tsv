@@ -1,0 +1,11 @@
+eval_group_id	workflow	suite	family	policy_summary	suite_average_gap	total_wall_time	dominated
+5	scout	mis_scout_16	vqe	VQE realamplitudes d=1 COBYLA CVaR(0.1)	0.0	29.4	0
+4	scout	mis_scout_16	vqe	VQE realamplitudes d=1 COBYLA CVaR(0.25)	0.0625	26.6	0
+1	scout	mis_scout_16	vqe	VQE realamplitudes d=1 COBYLA	0.604167	19.8	0
+15	scout	mis_scout_32	qrao	QRAO realamplitudes d=1 COBYLA	0.225	115.2	1
+14	scout	mis_scout_32	qrao	QRAO realamplitudes d=1 COBYLA	0.325	187.4	1
+21	scout	mis_scout_48	qrao	QRAO realamplitudes d=1 COBYLA	0.6	381.2	1
+13	scout	mis_scout_32	qrao	QRAO realamplitudes d=1 COBYLA	0.666667	173.8	1
+12	scout	mis_scout_32	qrao	QRAO realamplitudes d=1 COBYLA	0.7	108.4	1
+11	scout	mis_scout_32	qaoa	QAOA d=1 COBYLA CVaR(0.25) warmstart	1.0	26.8	1
+18	scout	mis_scout_48	qrao	QRAO realamplitudes d=1 COBYLA	1.0	483.4	1

@@ -1,0 +1,87 @@
+diff --git a/experiment.py b/experiment.py
+index 0fbeca2..392597d 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -78,7 +78,8 @@ def choose_solver_family(problem) -> str:
+     Starting point: always VQE.  The agent should discover when and whether
+     to switch families through experimentation.
+     """
+-    if getattr(problem, "num_variables", 0) <= 16:
++    n_vars = getattr(problem, "num_variables", 0)
++    if n_vars <= 16:
+         return "qaoa"
+     return "qrao"
+ 
+@@ -90,6 +91,10 @@ def build_base_policy(problem, family: str) -> dict:
+     The agent should discover and add support for other families as needed.
+     """
+     # ── Common defaults shared across all families ──
++    n_vars = getattr(problem, "num_variables", 0)
++    # Scale shots with problem size: 1024 for ≤32, 4096 for larger instances
++    est_shots = 4096 if n_vars > 32 else DEFAULT_ESTIMATOR_SHOTS
++    smp_shots = 4096 if n_vars > 32 else DEFAULT_SAMPLER_SHOTS
+     common = {
+         "solver_family": family,
+         "optimizer_method": "COBYLA",
+@@ -97,8 +102,8 @@ def build_base_policy(problem, family: str) -> dict:
+         "optimizer_maxiter": 150,
+         "learning_rate": 0.05,
+         "entanglement": "linear",
+-        "estimator_shots": DEFAULT_ESTIMATOR_SHOTS,
+-        "sampler_shots": DEFAULT_SAMPLER_SHOTS,
++        "estimator_shots": est_shots,
++        "sampler_shots": smp_shots,
+         "seed": 17,
+         "measurement_mode": "expectation",
+         "cvar_alpha": 0.25,
+@@ -178,13 +183,17 @@ def should_continue(
+ 
+     if n_vars <= 16:
+         return False
+-    if attempt >= 2:
+-        return False
+     if last.optimality_gap <= 0.0:
+         return False
+ 
++    # Large instances get 3 attempts (QRAO semideterministic → QRAO 2:1 → VQE CVaR)
+     if n_vars > 32:
+-        return bool((not last.raw_feasible) or last.optimality_gap > 0.4)
++        if attempt >= 3:
++            return False
++        return bool((not last.raw_feasible) or last.optimality_gap > 0.3)
++    # Medium instances get 2 attempts
++    if attempt >= 2:
++        return False
+     return bool((not last.raw_feasible) or last.optimality_gap > 0.6)
+ 
+ 
+@@ -211,14 +220,21 @@ def adapt_policy(
+     n_vars = getattr(problem, "num_variables", 0) if problem is not None else 0
+     last = history[-1]
+ 
+-    if (
+-        n_vars > 32
+-        and policy.get("solver_family") == "qrao"
+-        and ((not last.raw_feasible) or last.optimality_gap > 0.4)
+-    ):
+-        policy["qrao_max_vars_per_qubit"] = 2
+-        policy["qrac_type"] = 2
+-        policy["rounding"] = "semideterministic"
++    if n_vars > 32:
++        if attempt == 1 and ((not last.raw_feasible) or last.optimality_gap > 0.3):
++            # Attempt 1 fallback: QRAO 2:1 semideterministic (less compression)
++            policy["qrao_max_vars_per_qubit"] = 2
++            policy["qrac_type"] = 2
++            policy["rounding"] = "semideterministic"
++        elif attempt == 2 and ((not last.raw_feasible) or last.optimality_gap > 0.3):
++            # Attempt 2 fallback: VQE + CVaR (no compression, direct optimization)
++            policy["solver_family"] = "vqe"
++            policy["variant"] = "standard"
++            policy["ansatz_type"] = "real_amplitudes"
++            policy["vqe_reps"] = 1
++            policy["measurement_mode"] = "cvar"
++            policy["cvar_alpha"] = 0.1
++            policy["optimizer_maxiter"] = 200
+     elif (
+         n_vars > 16
+         and policy.get("solver_family") == "qrao"
