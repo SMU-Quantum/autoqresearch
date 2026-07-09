@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use AutoQResearch, please cite the accepted QCE26 paper."
+title: "AutoQResearch"
+authors:
+  - family-names: Sharma
+    given-names: Monit
+  - family-names: Lau
+    given-names: Hoong Chuin
+year: 2026
+repository-code: "https://github.com/SMU-Quantum/autoqresearch"
+preferred-citation:
+  type: conference-paper
+  title: "AutoQResearch: LLM-Guided Closed-Loop Policy Search for Adaptive Variational Quantum Optimization"
+  authors:
+    - family-names: Sharma
+      given-names: Monit
+    - family-names: Lau
+      given-names: Hoong Chuin
+  conference:
+    name: "QCE26 Quantum-GenAI Co-Design & Discovery (QGDD) Technical Papers"
+  identifiers:
+    - type: other
+      value: "QCE26 Technical Paper 238"
+  year: 2026

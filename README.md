@@ -1,187 +1,190 @@
 # AutoQResearch
 
-![include](progress2.png)
+![AutoQResearch progress overview](progress2.png)
 
+AutoQResearch is an LLM-guided closed-loop experimentation framework for
+adaptive variational quantum optimization. It searches over solver-control
+policies rather than one static solver configuration: each policy can react to
+diagnostics from earlier attempts, including feasibility, optimality gap,
+stagnation, sampling concentration, and instance scale.
 
-AutoQResearch is a small AutoResearch-style repository for discovering a transferable, state-dependent solver-control policy for 0-1 knapsack under resource constraints.
+## Publication Status
 
-The project is not about tuning one static solver configuration. It is about improving a sequential adaptive policy in `experiment.py` and measuring progress with one fixed suite metric:
+This repository accompanies the accepted QCE26 paper:
 
-- Primary metric: `suite_average_gap`
-- Direction: lower is better
-- Meaning: `0.0` is optimal on every suite instance, `1.0` is total failure/timeout/crash
+> **AutoQResearch: LLM-Guided Closed-Loop Policy Search for Adaptive
+> Variational Quantum Optimization**  
+> Monit Sharma and Hoong Chuin Lau  
+> QCE26 Technical Paper 238, Quantum-GenAI Co-Design & Discovery (QGDD)
+> Technical Papers
 
-## Core Structure
+The accepted work evaluates AutoQResearch on Maximum Independent Set (MIS) and
+a decomposed Capacitated Vehicle Routing Problem (CVRP) workflow. The public
+artifact in this repository focuses on the auditable policy-search framework,
+MIS curriculum, solver implementations, promotion logs, plots, hardware-run
+specifications, and analysis outputs used to support the reported results.
+
+## What This Repo Contains
 
 ```text
-Editable policy surface:
-  experiment.py
-
-Fixed evaluation + acceptance path:
-  evaluate_policy.py
-  agent_harness.py
-  program.md
-
-Comparative study layer:
-  study_runner.py
-  study_analysis.py
+autoqresearch/        Core Python package: problems, solvers, backends, metrics
+experiment.py         Editable policy surface searched by the LLM agent
+evaluate_policy.py    Fixed suite evaluator and paper artifact generator
+agent_harness.py      Scout/keep/revert/promotion harness
+agent_journal.md      Human-readable search journal
+program.md            Unmodified agent instructions used for the MIS search
+individual/mis/       DIMACS-style MIS benchmark instances
+policy_checkpoints/   Promoted policy snapshots
+experiment_diffs/     Archived policy diffs
+plots/                Generated paper and progress plots
+paper_analysis/       Tables for resource, scaling, and Pareto analyses
+hardware_runs/        IBM Runtime runner, static retained policies, hardware logs
+studies/              Prompt-ablation study manifests and prompts
+legacy/               Legacy example notebooks retained for reference
+docs/                 Project map and paper/reproducibility notes
 ```
 
-`experiment.py` exposes exactly four policy functions:
+Generated Python bytecode is intentionally not tracked. Runtime logs and
+checkpoints are kept when they are part of the paper artifact.
+
+See [docs/REPOSITORY_LAYOUT.md](docs/REPOSITORY_LAYOUT.md) for a more detailed
+map of stable entry points and generated artifact locations.
+
+## Core Idea
+
+AutoQResearch casts variational quantum solver design as sequential policy
+search over a curated action space. The LLM is restricted to a small policy
+surface in `experiment.py`, while evaluation, metric semantics, suite splits,
+promotion rules, and artifact generation remain fixed.
+
+The editable policy surface consists of four functions:
 
 1. `choose_solver_family(problem)`
 2. `build_base_policy(problem, family)`
 3. `should_continue(attempt, history, problem, max_attempts)`
 4. `adapt_policy(attempt, history, problem, base_policy)`
 
-Those functions define a sequential controller over one instance:
+Those functions define a controller of the form:
 
 ```text
 state_t -> action_t
 ```
 
-The state can include feasibility, optimality gap, stagnation, wall time, and instance metadata. The action can change solver family, optimizer, CVaR mode, depth/reps, shots, and stopping behavior.
+Actions can change solver family, ansatz, optimizer, CVaR mode, depth/reps,
+shots, compression strategy, rounding strategy, and stopping behavior.
 
-## What Is Fixed
+## Solver Space
 
-- `evaluate_policy.py` is the suite-level scorer.
-- `suite_average_gap` is the only optimization target for keep/revert.
-- Resource usage is logged for secondary frontier analysis, but never enters keep/revert.
-- Knapsack `optimality_gap` is computed against an exact dynamic-programming classical optimum.
-- Candidate evaluation is split-aware:
-  - train drives iteration
-  - dev is a guardrail against obvious overfitting
-  - test is held out for final reporting
-- Baseline comparison uses the same execution engine with a frozen conservative policy.
+The framework includes solver families used during the MIS policy search:
 
-## Why This Is Not Grid Search
+- VQE: variational eigensolver over QUBO formulations
+- QAOA: standard, warm-start, and multi-angle variants
+- PCE: Pauli Correlation Encoding through a weighted MaxCut reduction
+- QRAO: qubit-compressed Quantum Random Access Optimization with rounding
 
-A static parameter set cannot react to failed feasibility, low quality after a feasible attempt, stagnation, or instance size. The controller in `experiment.py` is allowed to make different decisions after each attempt based on what it has observed so far.
+The package also includes problem generators and utilities for MaxCut, MIS,
+MDKP, and knapsack-style QUBO experiments.
 
-The scientific object is the adaptive policy, not a single fixed configuration.
+## Evaluation Methodology
 
-The starting checkpoint in `experiment.py` is intentionally plain:
+The paper artifact emphasizes staged confirmation rather than one-shot proxy
+optimization:
 
-- initial family: conservative `vqe`
-- initial policy: `real_amplitudes`, `vqe_reps=1`, `COBYLA`, linear entanglement
-- stop rule: budget-only
-- adaptation: none
+- **Scout:** cheap proxy evaluation under a fixed workflow
+- **Promote:** rerun top beam candidates on the full stage suite
+- **Confirm:** select the confirmed winner while replaying earlier-stage
+  guardrails
+- **Final:** evaluate the locked policy on the held-out stage
 
-That is deliberate. The main artifact is the discovery trajectory from this
-simple baseline to a stronger adaptive controller.
+The primary metric is `suite_average_gap`:
 
-## Evaluation Workflow
+- `0.0` means optimal on every instance in the evaluated split
+- `1.0` means total failure, timeout, crash, or infeasible/trivial output
+- Lower is better
 
-Use the candidate workflow during development:
-
-```bash
-./.venv/bin/python evaluate_policy.py --suite quick --workflow candidate
-```
-
-This runs:
-
-- train split: primary optimization target
-- dev split: guardrail
-
-A candidate is accepted only if:
-
-- train `suite_average_gap` improves strictly
-- and dev does not regress by more than `0.02`
-
-For final held-out evaluation:
-
-```bash
-./.venv/bin/python evaluate_policy.py --suite standard --workflow final
-```
-
-To evaluate the immutable conservative baseline through the same engine:
-
-```bash
-./.venv/bin/python evaluate_policy.py --suite quick --workflow candidate --baseline
-```
-
-## Baseline Definition
-
-The fixed baseline is:
-
-- solver family: `vqe`
-- ansatz: `real_amplitudes`
-- `vqe_reps=1`
-- entanglement: `linear`
-- optimizer: `COBYLA`
-- conservative iteration tolerance/shots
-- no adaptation
-
-You can run it directly on one instance with:
-
-```bash
-./.venv/bin/python experiment_baseline.py --problem knapsack_12_s0
-```
-
-## Artifacts
-
-Per-instance diagnostics:
-
-- `results.tsv`
-- `instance_progress.png`
-- machine-readable per-run JSON summaries from `experiment.py`
-
-Suite-level primary artifacts:
-
-- `suite_results.tsv`
-- `suite_history.jsonl`
-- `plots/` (stage scout trajectories, promotion comparisons, overview, heatmap)
-- `progress.png` (legacy copy of the curriculum overview)
-- `experiment_log.jsonl`
-- `experiment_diffs/*.patch`
-
-Study-level comparison artifacts:
-
-- `studies/<study_id>/runs.tsv`
-- `studies/<study_id>/attempts.jsonl`
-- `studies/<study_id>/analysis/*.tsv`
-- `studies/<study_id>/analysis/*.png`
-
-`results.tsv` is diagnostic-only and must never be used for keep/revert decisions.
-`experiment_log.jsonl` records the full candidate trajectory, including the
-proposed `experiment.py` diff for both kept and rejected candidates.
-Accepted policy checkpoints also appear as git commits when you run
-`agent_harness.py`, and patch files are archived under `experiment_diffs/`.
-
-## Prompt Variants
-
-Files under `studies/prompts/` are ablations on agent guidance, not alternate definitions of the objective. Every prompt variant must target the same suite workflow and the same metric semantics.
+Resource usage, wall time, feasibility, and concentration are recorded for
+analysis, but the main keep/revert decision is driven by the fixed metric and
+guardrail rules.
 
 ## Quick Start
 
-Create the environment if needed:
+Create an environment and install dependencies:
 
 ```bash
-python3 -m venv .venv
+python -m venv .venv
 ./.venv/bin/pip install -r requirements.txt
 ```
 
-Validate the stack:
+On Windows PowerShell, activate the same environment with:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\pip install -r requirements.txt
+```
+
+Validate the Python stack:
 
 ```bash
 ./.venv/bin/python prepare.py --validate-only
 ```
 
-Run one adaptive instance diagnostic:
+Run a single MIS probe:
 
 ```bash
-./.venv/bin/python experiment.py --problem knapsack_12_s0 --max-attempts 3
+./.venv/bin/python evaluate_policy.py --suite mis_probe_16 --workflow split --split train --no-artifacts
 ```
 
-Run the candidate suite:
+Run the first MIS scout workflow:
 
 ```bash
-./.venv/bin/python evaluate_policy.py --suite quick --workflow candidate
+./.venv/bin/python agent_harness.py --suite mis_curriculum_16 --eval-workflow scout --wall-clock-budget 1800 --beam-width 5 --no-dev
 ```
 
-Run a comparative study:
+Promote the current beam:
 
 ```bash
-./.venv/bin/python study_runner.py run --manifest studies/example_manifest.json
-./.venv/bin/python study_analysis.py --study-dir studies/knapsack_repr_demo
+./.venv/bin/python agent_harness.py --suite mis_curriculum_16 --promote-beam --promote-top-k 3 --restore-best
 ```
+
+Run the retained 64-node held-out final suite after locking the policy:
+
+```bash
+./.venv/bin/python evaluate_policy.py --suite mis_curriculum_64 --workflow final --no-artifacts
+```
+
+## Reproducing Paper Artifacts
+
+The repository already contains the search logs, promotion records, policy
+snapshots, and generated tables/plots used by the paper artifact. The main
+files are:
+
+- `agent_journal.md`: narrative record of the MIS search
+- `experiment_log.jsonl`: candidate-level keep/discard trace
+- `beam_history.jsonl` and `beam_state.json`: scout beam history and state
+- `promotion_log.jsonl`: full-suite promotion confirmations
+- `suite_results.tsv` and `instance_results.jsonl`: suite and instance ledgers
+- `paper_analysis/`: paper-facing tables
+- `plots/`: paper-facing figures and progress visualizations
+
+See [docs/PAPER.md](docs/PAPER.md) for the paper-specific artifact guide and
+citation note.
+
+## Hardware Runs
+
+Hardware execution support lives under `hardware_runs/`. The default retained
+MIS policy runner can be inspected without touching IBM Runtime:
+
+```bash
+./.venv/bin/python hardware_runs/run_autoq_hardware.py --instance 1tc.32 --plan-only
+```
+
+Credential templates are included, but real credential files are ignored by
+Git.
+
+## Notes for Future Work
+
+The current public artifact intentionally preserves logs and checkpoints so the
+QCE26 result remains auditable. If you reorganize runtime paths, update
+`agent_harness.py`, `evaluate_policy.py`, `program.md`, and the docs together;
+several artifact names are part of the reproducibility contract.
+
