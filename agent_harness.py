@@ -42,6 +42,23 @@ POLICY_CHECKPOINT_DIR = Path("policy_checkpoints")
 BEAM_STATE_FILE = Path("beam_state.json")
 BEAM_LOG = Path("beam_history.jsonl")
 PROMOTION_LOG = Path("promotion_log.jsonl")
+CVRP_ARTIFACT_ROOT = Path("cvrp_results")
+
+
+def _configure_artifact_root_for_suite(suite: str) -> None:
+    """Keep CVRP agent-loop artifacts separate from the MIS result track."""
+    if not suite.startswith("cvrp_"):
+        return
+
+    global EXPERIMENT_LOG, DIFF_ARCHIVE_DIR, POLICY_CHECKPOINT_DIR
+    global BEAM_STATE_FILE, BEAM_LOG, PROMOTION_LOG
+
+    EXPERIMENT_LOG = CVRP_ARTIFACT_ROOT / "experiment_log.jsonl"
+    DIFF_ARCHIVE_DIR = CVRP_ARTIFACT_ROOT / "experiment_diffs"
+    POLICY_CHECKPOINT_DIR = CVRP_ARTIFACT_ROOT / "policy_checkpoints"
+    BEAM_STATE_FILE = CVRP_ARTIFACT_ROOT / "beam_state.json"
+    BEAM_LOG = CVRP_ARTIFACT_ROOT / "beam_history.jsonl"
+    PROMOTION_LOG = CVRP_ARTIFACT_ROOT / "promotion_log.jsonl"
 
 
 def _find_python() -> str:
@@ -520,7 +537,9 @@ def run_single(
         "proxy_primary_with_replay_guardrails"
         if workflow == "scout"
         else "train_primary_with_replay_guardrails"
-        if workflow == "candidate" and suite.startswith("mis_curriculum_")
+        if workflow == "candidate" and (
+            suite.startswith("mis_curriculum_") or suite.startswith("cvrp_curriculum_")
+        )
         else "train_primary_with_dev_guardrail"
     )
 
@@ -669,6 +688,11 @@ def main() -> int:
             "mis_curriculum_32",
             "mis_curriculum_48",
             "mis_curriculum_64",
+            "cvrp_scout_8",
+            "cvrp_curriculum_8",
+            "cvrp_curriculum_10",
+            "cvrp_curriculum_12",
+            "cvrp_benchmark_e13",
             "single20",
             "quick",
             "standard",
@@ -758,6 +782,7 @@ def main() -> int:
         help="Skip dev evaluation (single-instance mode, no dev guardrail)",
     )
     args = parser.parse_args()
+    _configure_artifact_root_for_suite(args.suite)
 
     if args.promote_beam:
         return _run_beam_promotion(

@@ -1,0 +1,13 @@
+diff --git a/experiment.py b/experiment.py
+index cc0ff4f..c1956e5 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -116,7 +116,7 @@ def build_base_policy(problem, family: str) -> dict:
+                 "route_quantum_qubit_threshold": 16,
+                 "route_quantum_fallback": True,
+                 "route_tsp_penalty": None,
+-                "sampler_shots": 4096,
++                "sampler_shots": 8192,
+                 "cvrp_seed_method": "depot_farthest",
+                 "cvrp_gap_penalty_method": "hard_slack",
+                 "cvrp_taylor_alpha": 10.0,

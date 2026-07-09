@@ -1,0 +1,13 @@
+diff --git a/experiment.py b/experiment.py
+index c1956e5..f1b13bb 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -130,7 +130,7 @@ def build_base_policy(problem, family: str) -> dict:
+             **common,
+             "variant": "standard",
+             "ansatz_type": "efficient_su2" if getattr(problem, "problem_type", "") == "cvrp" else "real_amplitudes",
+-            "vqe_reps": 1,
++            "vqe_reps": 2 if getattr(problem, "problem_type", "") == "cvrp" else 1,
+             "measurement_mode": "expectation" if getattr(problem, "problem_type", "") == "cvrp" else "cvar",
+             "cvar_alpha": 0.25 if getattr(problem, "problem_type", "") == "cvrp" else 0.1,
+         }

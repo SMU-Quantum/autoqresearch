@@ -1,0 +1,6 @@
+eval_group_id	workflow	suite	family	policy_summary	suite_average_gap	total_wall_time	dominated
+20	scout	cvrp_curriculum_10	vqe	VQE efficientsu2 d=1 COBYLA	0.04721	152.8	0
+1	scout	cvrp_scout_8	vqe	VQE efficientsu2 d=1 COBYLA	0.608209	138.6	0
+6	scout	cvrp_scout_8	vqe	VQE efficientsu2 d=1 COBYLA	0.112352	283.8	1
+5	scout	cvrp_scout_8	vqe	VQE efficientsu2 d=1 COBYLA	0.172828	193.4	1
+17	scout	cvrp_curriculum_10	vqe	VQE efficientsu2 d=1 COBYLA	1.0	348.5	1

@@ -16,41 +16,51 @@ This repository is the public artifact for the accepted work. It contains:
 
 - the AutoQResearch Python framework
 - the constrained editable policy surface used by the LLM agent
-- the fixed MIS evaluation harness and scout/promote/confirm protocol
+- fixed MIS and CVRP evaluation harnesses with scout/promote/confirm protocols
 - solver implementations for VQE, QAOA, PCE, and QRAO
-- MIS benchmark instances used by the staged curriculum
+- MIS and CVRP benchmark instances
 - archived policy diffs and promoted policy checkpoints
 - generated plots and tables used for paper-facing analysis
-- hardware-run scripts, retained MIS policies, and result logs
+- hardware-run scripts, retained policies, and result logs
 
-The accepted paper also discusses a decomposed CVRP workflow. This repository
-keeps the reusable framework and paper-facing MIS artifact in the foreground;
-CVRP-specific material should be added under a dedicated source and artifact
-directory if it is released here later.
+MIS artifacts live under `mis_results/` and `plots/plots_mis/`. CVRP artifacts
+live under `cvrp_results/`.
 
-## Main Reproduction Entry Points
+## Reproduction Entry Points
 
-Use these commands for the MIS artifact:
+Validate the environment:
 
 ```bash
 ./.venv/bin/python prepare.py --validate-only
+```
+
+MIS representative workflow:
+
+```bash
 ./.venv/bin/python evaluate_policy.py --suite mis_probe_16 --workflow split --split train --no-artifacts
 ./.venv/bin/python agent_harness.py --suite mis_curriculum_16 --eval-workflow scout --wall-clock-budget 1800 --beam-width 5 --no-dev
 ./.venv/bin/python agent_harness.py --suite mis_curriculum_16 --promote-beam --promote-top-k 3 --restore-best
 ./.venv/bin/python evaluate_policy.py --suite mis_curriculum_64 --workflow final --no-artifacts
 ```
 
+CVRP representative workflow:
+
+```bash
+./.venv/bin/python evaluate_policy.py --suite cvrp_scout_8 --workflow split --split train --no-artifacts
+./.venv/bin/python agent_harness.py --suite cvrp_curriculum_8 --eval-workflow scout --wall-clock-budget 1800 --beam-width 5 --no-dev
+./.venv/bin/python agent_harness.py --suite cvrp_curriculum_8 --promote-beam --promote-top-k 3 --restore-best
+./.venv/bin/python evaluate_policy.py --suite cvrp_benchmark_e13 --workflow final
+```
+
 The exact historical results are captured in the tracked ledgers and logs:
 
 ```text
-agent_journal.md
-experiment_log.jsonl
-beam_history.jsonl
-promotion_log.jsonl
-instance_results.jsonl
-suite_results.tsv
+mis_results/
+cvrp_results/
+experiment_diffs/mis_diffs/
+plots/plots_mis/
 paper_analysis/
-plots/
+hardware_runs/results_hardware/
 ```
 
 ## Citation

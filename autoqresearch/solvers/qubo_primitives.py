@@ -26,6 +26,14 @@ from qiskit.quantum_info import SparsePauliOp
 
 from ..backends.factory import BackendBundle
 from ..problems.base import ProblemInstance
+from ..problems.cvrp import (
+    clusters_to_gap_qubo_bitstring,
+    cvrp_gap_feasible,
+    cvrp_routed_cost,
+    decode_tsp_qubo_solution,
+    repair_cvrp_from_qubo,
+    route_cost,
+)
 from .base import SolverResult, summarize_circuit_resources
 
 
@@ -186,6 +194,170 @@ def compute_mis_best_feasible_ar(counts: dict[str, int], problem: ProblemInstanc
     return 0.0
 
 
+# ─── CVRP-specific feasibility & objective helpers ────────────────
+
+
+def check_cvrp_feasibility(x: np.ndarray, problem: ProblemInstance) -> bool:
+    """Check decoded GAP assignment and capacity feasibility."""
+    return cvrp_gap_feasible(x, problem)
+
+
+def cvrp_objective_value(x: np.ndarray, problem: ProblemInstance) -> float:
+    """Compute full route-second CVRP cost for a decoded GAP assignment."""
+    return cvrp_routed_cost(x, problem)
+
+
+def check_cvrp_tsp_feasibility(x: np.ndarray, problem: ProblemInstance) -> bool:
+    """Check whether a route-stage TSP QUBO sample decodes to a valid route."""
+    try:
+        converter = problem.metadata.get("converter")
+        original_qp = problem.metadata.get("original_qp")
+        if converter is None or original_qp is None:
+            return problem.is_feasible(x)
+        original_x = np.asarray(converter.interpret(np.asarray(x, dtype=float)), dtype=float)
+        if not original_qp.is_feasible(original_x):
+            return False
+        decode_tsp_qubo_solution(x, problem)
+        return True
+    except Exception:
+        return False
+
+
+def cvrp_tsp_objective_value(x: np.ndarray, problem: ProblemInstance) -> float:
+    """Compute the route cost for a route-stage TSP QUBO sample."""
+    if not check_cvrp_tsp_feasibility(x, problem):
+        return float("inf")
+    route = decode_tsp_qubo_solution(x, problem)
+    return float(route_cost(problem.metadata["instance"], route))
+
+
+def _extract_minimization_solution(
+    counts: dict[str, int],
+    problem: ProblemInstance,
+    objective_fn,
+    feasibility_fn,
+) -> tuple[np.ndarray, float, bool]:
+    """Extract the lowest-objective feasible sample from minimization counts."""
+    n_qubo = problem.num_variables
+    best_feasible_val = float("inf")
+    best_feasible_x = None
+    best_any_val = float("inf")
+    best_any_x = None
+
+    for bitstring_str in counts:
+        x = _bitstring_to_array(bitstring_str, n_qubo)
+        obj_val = float(objective_fn(x, problem))
+        feasible = bool(feasibility_fn(x, problem))
+
+        if feasible and obj_val < best_feasible_val:
+            best_feasible_val = obj_val
+            best_feasible_x = x.copy()
+
+        fallback_val = obj_val
+        if not np.isfinite(fallback_val):
+            fallback_val = float(problem.qubo.objective.evaluate(x))
+        if fallback_val < best_any_val:
+            best_any_val = fallback_val
+            best_any_x = x.copy()
+
+    if best_feasible_x is not None:
+        return best_feasible_x, float(best_feasible_val), True
+    if best_any_x is not None:
+        return best_any_x, float(best_any_val), False
+    return np.zeros(n_qubo), float("inf"), False
+
+
+def extract_cvrp_solution(
+    counts: dict[str, int], problem: ProblemInstance
+) -> tuple[np.ndarray, float, bool]:
+    # First try raw extraction (original path)
+    x, cost, feasible = _extract_minimization_solution(
+        counts,
+        problem,
+        cvrp_objective_value,
+        check_cvrp_feasibility,
+    )
+    if feasible:
+        return x, cost, True
+
+    # No raw feasible solution found — attempt repair on top bitstrings
+    n_qubo = problem.num_variables
+    top_bitstrings = sorted(counts.keys(), key=lambda bs: counts[bs], reverse=True)[:100]
+    best_repaired_cost = float("inf")
+    best_repaired_x = None
+    for bs in top_bitstrings:
+        bx = _bitstring_to_array(bs, n_qubo)
+        clusters, repaired_cost = repair_cvrp_from_qubo(bx, problem)
+        if clusters is not None and repaired_cost < best_repaired_cost:
+            try:
+                repaired_x = clusters_to_gap_qubo_bitstring(problem, clusters)
+            except Exception:
+                continue
+            if check_cvrp_feasibility(repaired_x, problem):
+                best_repaired_cost = repaired_cost
+                best_repaired_x = repaired_x.copy()
+    if best_repaired_x is not None:
+        return best_repaired_x, best_repaired_cost, True
+
+    # Repair also failed — return best infeasible
+    return x, cost, False
+
+
+def extract_cvrp_tsp_solution(
+    counts: dict[str, int], problem: ProblemInstance
+) -> tuple[np.ndarray, float, bool]:
+    return _extract_minimization_solution(
+        counts,
+        problem,
+        cvrp_tsp_objective_value,
+        check_cvrp_tsp_feasibility,
+    )
+
+
+def compute_cvrp_feasibility_rate(counts: dict[str, int], problem: ProblemInstance) -> float:
+    total = 0
+    feasible = 0
+    for bitstring, count in counts.items():
+        x = _bitstring_to_array(bitstring, problem.num_variables)
+        total += count
+        if check_cvrp_feasibility(x, problem):
+            feasible += count
+    return feasible / max(total, 1)
+
+
+def compute_cvrp_tsp_feasibility_rate(counts: dict[str, int], problem: ProblemInstance) -> float:
+    total = 0
+    feasible = 0
+    for bitstring, count in counts.items():
+        x = _bitstring_to_array(bitstring, problem.num_variables)
+        total += count
+        if check_cvrp_tsp_feasibility(x, problem):
+            feasible += count
+    return feasible / max(total, 1)
+
+
+def compute_cvrp_best_feasible_ar(counts: dict[str, int], problem: ProblemInstance) -> float:
+    best_cost = float("inf")
+    for bitstring in counts:
+        x = _bitstring_to_array(bitstring, problem.num_variables)
+        if check_cvrp_feasibility(x, problem):
+            best_cost = min(best_cost, cvrp_objective_value(x, problem))
+    if not np.isfinite(best_cost):
+        return 0.0
+    return min(1.0, max(0.0, float(problem.optimal_value) / max(best_cost, 1e-10)))
+
+
+def compute_cvrp_tsp_best_feasible_ar(counts: dict[str, int], problem: ProblemInstance) -> float:
+    best_cost = float("inf")
+    for bitstring in counts:
+        x = _bitstring_to_array(bitstring, problem.num_variables)
+        if check_cvrp_tsp_feasibility(x, problem):
+            best_cost = min(best_cost, cvrp_tsp_objective_value(x, problem))
+    if not np.isfinite(best_cost):
+        return 0.0
+    return min(1.0, max(0.0, float(problem.optimal_value) / max(best_cost, 1e-10)))
+
+
 # ─── Generic dispatchers (route by problem type) ────────────────
 
 
@@ -193,6 +365,10 @@ def check_feasibility(x: np.ndarray, problem: ProblemInstance) -> bool:
     """Check feasibility, dispatching by problem type."""
     if problem.problem_type == "mis":
         return check_mis_feasibility(x, problem)
+    if problem.problem_type == "cvrp":
+        return check_cvrp_feasibility(x, problem)
+    if problem.problem_type == "cvrp_tsp":
+        return check_cvrp_tsp_feasibility(x, problem)
     return check_qubo_feasibility(x, problem)
 
 
@@ -200,6 +376,10 @@ def objective_value(x: np.ndarray, problem: ProblemInstance) -> float:
     """Compute objective value, dispatching by problem type."""
     if problem.problem_type == "mis":
         return mis_objective_value(x, problem)
+    if problem.problem_type == "cvrp":
+        return cvrp_objective_value(x, problem)
+    if problem.problem_type == "cvrp_tsp":
+        return cvrp_tsp_objective_value(x, problem)
     return qubo_objective_value(x, problem)
 
 
@@ -209,6 +389,10 @@ def extract_solution(
     """Extract the best solution from measurement counts, dispatching by problem type."""
     if problem.problem_type == "mis":
         return extract_mis_solution(counts, problem)
+    if problem.problem_type == "cvrp":
+        return extract_cvrp_solution(counts, problem)
+    if problem.problem_type == "cvrp_tsp":
+        return extract_cvrp_tsp_solution(counts, problem)
     return extract_qubo_solution(counts, problem)
 
 
@@ -216,6 +400,10 @@ def compute_feasibility_rate(counts: dict[str, int], problem: ProblemInstance) -
     """Fraction of measured samples satisfying constraints (dispatches by problem type)."""
     if problem.problem_type == "mis":
         return compute_mis_feasibility_rate(counts, problem)
+    if problem.problem_type == "cvrp":
+        return compute_cvrp_feasibility_rate(counts, problem)
+    if problem.problem_type == "cvrp_tsp":
+        return compute_cvrp_tsp_feasibility_rate(counts, problem)
     # Knapsack path
     total = 0
     feasible = 0
@@ -236,6 +424,10 @@ def compute_best_feasible_ar(counts: dict[str, int], problem: ProblemInstance) -
     """Best approximation ratio among feasible samples (dispatches by problem type)."""
     if problem.problem_type == "mis":
         return compute_mis_best_feasible_ar(counts, problem)
+    if problem.problem_type == "cvrp":
+        return compute_cvrp_best_feasible_ar(counts, problem)
+    if problem.problem_type == "cvrp_tsp":
+        return compute_cvrp_tsp_best_feasible_ar(counts, problem)
     # Knapsack path
     n_qubo = problem.num_variables
     best_ar = 0.0

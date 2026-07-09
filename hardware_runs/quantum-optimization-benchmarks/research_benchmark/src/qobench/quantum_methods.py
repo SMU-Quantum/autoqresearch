@@ -1444,7 +1444,7 @@ def run_qrao_method(
             QuantumRandomAccessOptimizer,
             SemideterministicRounding,
         )
-        from qiskit_optimization.minimum_eigensolvers import NumPyMinimumEigensolver, VQE
+        from qiskit_algorithms.minimum_eigensolvers import NumPyMinimumEigensolver, VQE
     except Exception as exc:
         raise ModuleNotFoundError(
             "QRAO dependencies are missing. Install qiskit, qiskit-algorithms, and qiskit-optimization."

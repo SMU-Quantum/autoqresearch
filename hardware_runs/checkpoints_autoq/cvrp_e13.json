@@ -1,0 +1,10 @@
+{
+  "E-n13-k4": {
+    "feasible": true,
+    "jobs": 151,
+    "optimality_gap": 0.13937282775327786,
+    "result_dir": "/Users/monitsharma/SMU-Quantum-Repos/autoqresearch/hardware_runs/results_hardware/cvrp/e13_autoq_20260413T054007Z/E_n13_k4",
+    "run_directory": "/Users/monitsharma/SMU-Quantum-Repos/autoqresearch/hardware_runs/results_hardware/cvrp/e13_autoq_20260413T054007Z",
+    "status": "OK"
+  }
+}

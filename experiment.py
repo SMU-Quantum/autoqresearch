@@ -78,6 +78,10 @@ def choose_solver_family(problem) -> str:
     Starting point: always VQE.  The agent should discover when and whether
     to switch families through experimentation.
     """
+    if getattr(problem, "problem_type", "") == "cvrp":
+        if getattr(problem, "num_variables", 0) > 30:
+            return "hybrid"
+        return "vqe"
     if getattr(problem, "num_variables", 0) <= 16:
         return "qaoa"
     return "qrao"
@@ -106,14 +110,32 @@ def build_base_policy(problem, family: str) -> dict:
         "pce_local_search": False,
         "final_local_search": False,
     }
+    if getattr(problem, "problem_type", "") == "cvrp":
+        common.update(
+            {
+                "gap_solver_family": family,
+                "route_solver_family": "classical",
+                "route_quantum_qubit_threshold": 16,
+                "route_quantum_fallback": True,
+                "route_tsp_penalty": None,
+                "estimator_shots": 2048,
+                "sampler_shots": 16384,
+                "cvrp_seed_method": "depot_farthest",
+                "cvrp_gap_penalty_method": "tilted",
+                "cvrp_taylor_alpha": 10.0,
+                "cvrp_tilted_kappa": 5.0,
+                "cvrp_tilted_s_frac": 0.10,
+                "cvrp_tilted_s_min": 1.0,
+            }
+        )
     if family == "vqe":
         return {
             **common,
             "variant": "standard",
-            "ansatz_type": "real_amplitudes",
+            "ansatz_type": "efficient_su2" if getattr(problem, "problem_type", "") == "cvrp" else "real_amplitudes",
             "vqe_reps": 1,
-            "measurement_mode": "cvar",
-            "cvar_alpha": 0.1,
+            "measurement_mode": "expectation" if getattr(problem, "problem_type", "") == "cvrp" else "cvar",
+            "cvar_alpha": 0.25 if getattr(problem, "problem_type", "") == "cvrp" else 0.1,
         }
     if family == "qaoa":
         return {
@@ -162,6 +184,18 @@ def build_base_policy(problem, family: str) -> dict:
             "ansatz_type": "real_amplitudes",
             "vqe_reps": 1,
         }
+    if family == "hybrid":
+        return {
+            **common,
+            "gap_solver_family": "hybrid",
+            "hybrid_sub_family": "vqe",
+            "hybrid_ambiguity_threshold": 0.5,
+            "variant": "standard",
+            "ansatz_type": "efficient_su2",
+            "vqe_reps": 1,
+            "measurement_mode": "expectation",
+            "cvar_alpha": 0.25,
+        }
     raise ValueError(f"Unknown solver family: {family}")
 
 
@@ -185,6 +219,9 @@ def should_continue(
 
     n_vars = getattr(problem, "num_variables", 0) if problem is not None else 0
     last = history[-1]
+
+    if getattr(problem, "problem_type", "") == "cvrp":
+        return False
 
     if n_vars <= 16:
         return False
@@ -358,15 +395,429 @@ def _make_backend(policy: dict, mode: str):
     )
 
 
+def _stage_policy(policy: dict, prefix: str, family: str) -> dict:
+    """Return a solver policy with stage-prefixed overrides applied."""
+    staged = policy.copy()
+    for key, value in policy.items():
+        if not key.startswith(prefix):
+            continue
+        stripped = key[len(prefix):]
+        if stripped:
+            staged[stripped] = value
+    staged["solver_family"] = family
+    return staged
+
+
+def _solve_cvrp_staged(problem, policy: dict, backend):
+    """Solve CVRP as GAP QUBO followed by per-cluster route TSP QUBOs."""
+    from autoqresearch.problems.cvrp import (
+        build_route_tsp_problem,
+        clusters_to_gap_qubo_bitstring,
+        clusters_capacity_feasible,
+        decode_gap_qubo_solution,
+        decode_tsp_qubo_solution,
+        repair_cvrp_from_qubo,
+        route_cost,
+        route_stage_qubit_counts,
+        solve_cvrp_routes_classically,
+        solve_gap_greedy,
+    )
+    from autoqresearch.solvers.base import SolverResult
+    from autoqresearch.solvers.qubo_primitives import extract_solution
+
+    gap_family = str(
+        policy.get("gap_solver_family")
+        or policy.get("solver_family")
+        or choose_solver_family(problem)
+    ).lower()
+    route_family = str(policy.get("route_solver_family", "classical")).lower()
+    if gap_family not in {"classical", "hybrid", "vqe", "qaoa", "qrao", "pce"}:
+        raise ValueError("gap_solver_family must be classical, hybrid, vqe, qaoa, qrao, or pce.")
+    if route_family not in {"classical", "vqe", "qaoa", "qrao", "pce"}:
+        raise ValueError("route_solver_family must be classical, vqe, qaoa, qrao, or pce.")
+
+    # --- Hybrid mode: classical greedy GAP + quantum refinement ---
+    if gap_family == "hybrid":
+        from autoqresearch.problems.cvrp import (
+            build_reduced_gap_qubo,
+            identify_ambiguous_customers,
+        )
+        instance = problem.metadata["instance"]
+        seeds = list(problem.metadata["seeds"])
+        num_vehicles = int(problem.metadata["num_vehicles"])
+
+        # Step 1: classical greedy assignment
+        classical_clusters = solve_gap_greedy(instance, seeds)
+
+        # Step 2: identify ambiguous customers
+        threshold = float(policy.get("hybrid_ambiguity_threshold", 0.3))
+        ambiguous, fixed = identify_ambiguous_customers(
+            instance, seeds, classical_clusters, threshold=threshold,
+        )
+
+        # If few enough ambiguous customers, solve the reduced sub-problem quantumly
+        sub_family = str(policy.get("hybrid_sub_family", "vqe")).lower()
+        if ambiguous and len(ambiguous) * num_vehicles <= 30:
+            cap_method = str(policy.get("cvrp_gap_penalty_method", "tilted"))
+            reduced = build_reduced_gap_qubo(
+                instance, seeds, fixed, ambiguous,
+                capacity_method=cap_method,
+                taylor_alpha=float(policy.get("cvrp_taylor_alpha", 10.0)),
+                tilted_kappa=float(policy.get("cvrp_tilted_kappa", 5.0)),
+                tilted_s_frac=float(policy.get("cvrp_tilted_s_frac", 0.10)),
+                tilted_s_min=float(policy.get("cvrp_tilted_s_min", 1.0)),
+            )
+            from autoqresearch.problems.base import ProblemInstance as PI
+            sub_problem = PI(
+                name=f"{problem.name}_reduced",
+                problem_type="cvrp",
+                num_variables=reduced["qubo"].get_num_vars(),
+                qubo=reduced["qubo"],
+                optimal_value=problem.optimal_value,
+                optimal_solution=None,
+                metadata={
+                    **problem.metadata,
+                    "original_qp": reduced["qp"],
+                    "converter": reduced["converter"],
+                    "converter_penalty": reduced["converter_penalty"],
+                    "customers": ambiguous,
+                },
+            )
+            sub_policy = _stage_policy(policy, "gap_", sub_family)
+            sub_result = _get_solver_fn(sub_family)(sub_problem, sub_policy, backend)
+
+            # Decode the reduced solution and merge with fixed assignments
+            from autoqresearch.problems.cvrp import (
+                decode_gap_raw_assignment,
+                repair_gap_assignment,
+            )
+            n_sub = sub_problem.num_variables
+            from autoqresearch.solvers.qubo_primitives import _bitstring_to_array
+            best_clusters = None
+            best_cost_hybrid = float("inf")
+            top_bs = sorted(sub_result.counts.keys(), key=lambda bs: sub_result.counts[bs], reverse=True)[:50]
+            for bs in top_bs:
+                bx = _bitstring_to_array(bs, n_sub)
+                try:
+                    orig_x = np.asarray(reduced["converter"].interpret(np.asarray(bx, dtype=float)), dtype=float)
+                    raw = decode_gap_raw_assignment(orig_x, reduced["qp"], ambiguous, num_vehicles)
+                except Exception:
+                    continue
+                # Merge: start from fixed, add decoded ambiguous
+                merged_raw: dict[int, list[int]] = {}
+                for c in instance["customers"]:
+                    if c in fixed:
+                        merged_raw[c] = [fixed[c]]
+                    elif c in raw:
+                        merged_raw[c] = raw[c]
+                    else:
+                        merged_raw[c] = []
+                clusters = repair_gap_assignment(instance, seeds, merged_raw)
+                if clusters is not None and clusters_capacity_feasible(instance, clusters):
+                    rs = solve_cvrp_routes_classically(instance, clusters)
+                    cost = float(sum(s["cost"] for s in rs))
+                    if cost < best_cost_hybrid:
+                        best_cost_hybrid = cost
+                        best_clusters = clusters
+
+            if best_clusters is not None:
+                route_solutions = solve_cvrp_routes_classically(instance, best_clusters)
+                route_stage_cost = float(sum(s["cost"] for s in route_solutions))
+                route_counts = route_stage_qubit_counts(best_clusters)
+                best_x = clusters_to_gap_qubo_bitstring(problem, best_clusters)
+                return SolverResult(
+                    best_bitstring=best_x,
+                    best_objective=route_stage_cost,
+                    is_feasible=True,
+                    counts={},
+                    num_shots=int(getattr(sub_result, "num_shots", 0)),
+                    circuit_depth=int(getattr(sub_result, "circuit_depth", 0)),
+                    cnot_count=int(getattr(sub_result, "cnot_count", 0)),
+                    two_qubit_gate_count=int(getattr(sub_result, "two_qubit_gate_count", 0)),
+                    total_gate_count=int(getattr(sub_result, "total_gate_count", 0)),
+                    gate_counts=dict(getattr(sub_result, "gate_counts", {}) or {}),
+                    num_qubits=int(getattr(sub_result, "num_qubits", 0)),
+                    num_parameters=int(getattr(sub_result, "num_parameters", 0)),
+                    optimizer_iterations=int(getattr(sub_result, "optimizer_iterations", 0)),
+                    final_cost=float(getattr(sub_result, "final_cost", 0.0)),
+                    parameter_values=getattr(sub_result, "parameter_values", None),
+                    convergence_history=list(getattr(sub_result, "convergence_history", []) or []),
+                    solver_name=f"cvrp_hybrid_gap_{sub_family}_route_classical",
+                    metadata={
+                        "gap_solver_family": f"hybrid_{sub_family}",
+                        "route_solver_family": "classical",
+                        "gap_feasible": True,
+                        "gap_objective": best_cost_hybrid,
+                        "route_solutions": route_solutions,
+                        "route_qubit_counts": route_counts,
+                        "gap_qubits": int(getattr(sub_result, "num_qubits", 0)),
+                        "route_max_qubits": 0,
+                        "sequential_qubits": int(getattr(sub_result, "num_qubits", 0)),
+                        "route_quantum_result_count": 0,
+                        "hybrid_ambiguous_count": len(ambiguous),
+                        "hybrid_fixed_count": len(fixed),
+                        "post_repair_source": "hybrid_quantum_repair",
+                        "repair_applied": True,
+                        "classical_fallback": False,
+                        "raw_count_space": "reduced_gap",
+                        "reduced_gap_shots": int(getattr(sub_result, "num_shots", 0)),
+                        "reduced_gap_counts": dict(getattr(sub_result, "counts", {}) or {}),
+                        "reduced_gap_best_bitstring": np.asarray(
+                            getattr(sub_result, "best_bitstring", []),
+                            dtype=int,
+                        ).tolist(),
+                        "reduced_gap_best_objective": float(getattr(sub_result, "best_objective", 0.0)),
+                        "reduced_gap_feasible": bool(getattr(sub_result, "is_feasible", False)),
+                        "reduced_gap_solver_name": str(getattr(sub_result, "solver_name", "")),
+                    },
+                )
+
+        # Fallback: use classical greedy assignment, repair if needed
+        fallback_clusters = classical_clusters
+        fallback_repaired = False
+        if not clusters_capacity_feasible(instance, fallback_clusters):
+            from autoqresearch.problems.cvrp import repair_gap_assignment
+            raw_assignment = {c: [v] for v, cl in enumerate(fallback_clusters) for c in cl}
+            repaired = repair_gap_assignment(instance, seeds, raw_assignment)
+            if repaired is not None and clusters_capacity_feasible(instance, repaired):
+                fallback_clusters = repaired
+                fallback_repaired = True
+
+        if clusters_capacity_feasible(instance, fallback_clusters):
+            route_solutions = solve_cvrp_routes_classically(instance, fallback_clusters)
+            route_stage_cost = float(sum(s["cost"] for s in route_solutions))
+            route_counts = route_stage_qubit_counts(fallback_clusters)
+            best_x = clusters_to_gap_qubo_bitstring(problem, fallback_clusters)
+            return SolverResult(
+                best_bitstring=best_x,
+                best_objective=route_stage_cost,
+                is_feasible=True,
+                counts={},
+                num_shots=0, circuit_depth=0, cnot_count=0,
+                two_qubit_gate_count=0, total_gate_count=0, gate_counts={},
+                num_qubits=0, num_parameters=0, optimizer_iterations=0,
+                final_cost=0.0, parameter_values=None, convergence_history=[],
+                solver_name="cvrp_hybrid_classical_fallback",
+                metadata={
+                    "gap_solver_family": "hybrid_classical",
+                    "route_solver_family": "classical",
+                    "gap_feasible": True, "gap_objective": route_stage_cost,
+                    "route_solutions": route_solutions,
+                    "route_qubit_counts": route_counts,
+                    "gap_qubits": 0, "route_max_qubits": 0,
+                    "sequential_qubits": 0, "route_quantum_result_count": 0,
+                    "post_repair_source": "hybrid_classical_fallback",
+                    "repair_applied": fallback_repaired,
+                    "classical_fallback": True,
+                    "raw_count_space": "none",
+                },
+            )
+
+    # --- Standard quantum GAP path ---
+    if gap_family == "hybrid":
+        # Hybrid path exhausted without returning — return infeasible
+        from autoqresearch.solvers.base import SolverResult
+        return SolverResult(
+            best_bitstring=np.zeros(problem.num_variables),
+            best_objective=float("inf"), is_feasible=False,
+            counts={}, num_shots=0, circuit_depth=0, cnot_count=0,
+            two_qubit_gate_count=0, total_gate_count=0, gate_counts={},
+            num_qubits=0, num_parameters=0, optimizer_iterations=0,
+            final_cost=0.0, parameter_values=None, convergence_history=[],
+            solver_name="cvrp_hybrid_failed",
+            metadata={"gap_solver_family": "hybrid", "route_solver_family": "classical",
+                      "gap_feasible": False, "gap_objective": float("inf")},
+        )
+    if gap_family == "classical":
+        raise ValueError("CVRP GAP stage must use a quantum QUBO solver family.")
+
+    gap_policy = _stage_policy(policy, "gap_", gap_family)
+    gap_result = _get_solver_fn(gap_family)(problem, gap_policy, backend)
+    gap_x, gap_cost, gap_feasible = extract_solution(gap_result.counts, problem)
+
+    route_solutions = []
+    route_results = []
+    route_stage_feasible = bool(gap_feasible)
+    route_stage_cost = float(gap_cost)
+    route_counts = route_stage_qubit_counts([])
+    route_shots = 0
+    route_depth = 0
+    route_cnot_count = 0
+    route_two_qubit_count = 0
+    route_total_gates = 0
+    route_num_parameters = 0
+    route_max_qubits = 0
+
+    if gap_feasible:
+        # Try direct decode; if bitstring was repaired, fall back to repair decode
+        try:
+            clusters = decode_gap_qubo_solution(gap_x, problem)
+        except (ValueError, Exception):
+            repaired_clusters, repaired_cost = repair_cvrp_from_qubo(gap_x, problem)
+            if repaired_clusters is not None:
+                clusters = repaired_clusters
+            else:
+                # Cannot decode at all
+                route_stage_feasible = False
+                clusters = []
+        route_counts = route_stage_qubit_counts(clusters)
+        instance = problem.metadata["instance"]
+
+        if route_family == "classical":
+            route_solutions = solve_cvrp_routes_classically(instance, clusters)
+        else:
+            fallback_enabled = bool(policy.get("route_quantum_fallback", True))
+            threshold = int(policy.get("route_quantum_qubit_threshold", 16))
+            tsp_penalty = policy.get("route_tsp_penalty", policy.get("tsp_penalty"))
+            route_policy_base = _stage_policy(policy, "route_", route_family)
+
+            for route_index, cluster in enumerate(clusters):
+                if not cluster:
+                    route_solutions.append(
+                        {
+                            "route_index": route_index,
+                            "customers": [],
+                            "load": 0,
+                            "solver": "classical_exact",
+                            "route": [],
+                            "cost": 0.0,
+                            "fallback_reason": "empty_cluster",
+                        }
+                    )
+                    continue
+
+                route_problem = build_route_tsp_problem(
+                    instance,
+                    list(cluster),
+                    route_index,
+                    tsp_penalty=tsp_penalty,
+                )
+                if route_problem.num_variables > threshold and fallback_enabled:
+                    classical_route = route_problem.metadata["classical_solution"]
+                    route_solutions.append(
+                        {
+                            "route_index": route_index,
+                            "customers": list(cluster),
+                            "load": int(sum(instance["demands"][customer] for customer in cluster)),
+                            **classical_route,
+                            "fallback_reason": "route_qubit_threshold",
+                            "tsp_qubits": route_problem.num_variables,
+                        }
+                    )
+                    continue
+
+                route_policy = route_policy_base.copy()
+                route_policy["seed"] = int(policy.get("seed", 17)) + 101 + route_index
+                route_result = _get_solver_fn(route_family)(route_problem, route_policy, backend)
+                route_x, route_obj, route_feasible = extract_solution(route_result.counts, route_problem)
+                route_results.append(route_result)
+                route_shots += int(getattr(route_result, "num_shots", 0))
+                route_depth += int(getattr(route_result, "circuit_depth", 0))
+                route_cnot_count += int(getattr(route_result, "cnot_count", 0))
+                route_two_qubit_count += int(getattr(route_result, "two_qubit_gate_count", 0))
+                route_total_gates += int(getattr(route_result, "total_gate_count", 0))
+                route_num_parameters += int(getattr(route_result, "num_parameters", 0))
+                route_max_qubits = max(route_max_qubits, int(getattr(route_result, "num_qubits", 0)))
+                if not route_feasible and fallback_enabled:
+                    classical_route = route_problem.metadata["classical_solution"]
+                    route_solutions.append(
+                        {
+                            "route_index": route_index,
+                            "customers": list(cluster),
+                            "load": int(sum(instance["demands"][customer] for customer in cluster)),
+                            **classical_route,
+                            "fallback_reason": "route_quantum_infeasible",
+                            "tsp_qubits": route_problem.num_variables,
+                        }
+                    )
+                    continue
+                if not route_feasible:
+                    route_stage_feasible = False
+                    route_solutions.append(
+                        {
+                            "route_index": route_index,
+                            "customers": list(cluster),
+                            "load": int(sum(instance["demands"][customer] for customer in cluster)),
+                            "solver": route_family,
+                            "route": [],
+                            "cost": float("inf"),
+                            "tsp_qubits": route_problem.num_variables,
+                        }
+                    )
+                    continue
+
+                route = decode_tsp_qubo_solution(route_x, route_problem)
+                route_solutions.append(
+                    {
+                        "route_index": route_index,
+                        "customers": list(cluster),
+                        "load": int(sum(instance["demands"][customer] for customer in cluster)),
+                        "solver": route_family,
+                        "route": route,
+                        "cost": route_cost(instance, route),
+                        "tsp_qubits": route_problem.num_variables,
+                        "route_objective": route_obj,
+                    }
+                )
+
+        route_stage_cost = float(sum(solution["cost"] for solution in route_solutions))
+        route_stage_feasible = bool(
+            route_stage_feasible
+            and np.isfinite(route_stage_cost)
+            and clusters_capacity_feasible(instance, clusters)
+        )
+
+    sequential_qubits = max(int(getattr(gap_result, "num_qubits", 0)), route_max_qubits)
+    if route_family == "classical":
+        sequential_qubits = int(getattr(gap_result, "num_qubits", 0))
+
+    return SolverResult(
+        best_bitstring=gap_x,
+        best_objective=route_stage_cost,
+        is_feasible=route_stage_feasible,
+        counts=gap_result.counts,
+        num_shots=int(getattr(gap_result, "num_shots", 0)) + route_shots,
+        circuit_depth=int(getattr(gap_result, "circuit_depth", 0)) + route_depth,
+        cnot_count=int(getattr(gap_result, "cnot_count", 0)) + route_cnot_count,
+        two_qubit_gate_count=int(getattr(gap_result, "two_qubit_gate_count", 0)) + route_two_qubit_count,
+        total_gate_count=int(getattr(gap_result, "total_gate_count", 0)) + route_total_gates,
+        gate_counts=dict(getattr(gap_result, "gate_counts", {}) or {}),
+        num_qubits=sequential_qubits,
+        num_parameters=int(getattr(gap_result, "num_parameters", 0)) + route_num_parameters,
+        optimizer_iterations=int(getattr(gap_result, "optimizer_iterations", 0))
+        + sum(int(getattr(result, "optimizer_iterations", 0)) for result in route_results),
+        final_cost=float(getattr(gap_result, "final_cost", 0.0)),
+        parameter_values=getattr(gap_result, "parameter_values", None),
+        convergence_history=list(getattr(gap_result, "convergence_history", []) or []),
+        solver_name=f"cvrp_gap_{gap_family}_route_{route_family}",
+        metadata={
+            "gap_solver_family": gap_family,
+            "route_solver_family": route_family,
+            "gap_feasible": bool(gap_feasible),
+            "gap_objective": float(gap_cost),
+            "route_solutions": route_solutions,
+            "route_qubit_counts": route_counts,
+            "gap_qubits": int(getattr(gap_result, "num_qubits", 0)),
+            "route_max_qubits": int(route_max_qubits),
+            "sequential_qubits": int(sequential_qubits),
+            "route_quantum_result_count": len(route_results),
+        },
+    )
+
+
 def _parse_problem_spec(spec: str) -> tuple[str, int | str, int]:
     """Parse problem specification string.
 
     Standard format: ``knapsack_12_s3`` → ("knapsack", 12, 3)
     File-based MIS:  ``mis_file_1tc.32`` → ("mis_file", "1tc.32", 0)
+    File-based CVRP: ``cvrp_file_E-n13-k4`` → ("cvrp_file", "E-n13-k4", 0)
     """
     if spec.startswith("mis_file_"):
         filename = spec[len("mis_file_"):]
         return "mis_file", filename, 0
+    if spec.startswith("cvrp_file_"):
+        filename = spec[len("cvrp_file_"):]
+        return "cvrp_file", filename, 0
     parts = spec.split("_")
     problem_type = parts[0]
     size = int(parts[1])
@@ -391,6 +842,37 @@ def build_static_baseline_policy(problem) -> dict:
     This helper lives in fixed infrastructure so baseline evaluation uses the
     same engine as adaptive runs, with only the policy frozen.
     """
+    if getattr(problem, "problem_type", "") == "cvrp":
+        return {
+            "solver_family": "vqe",
+            "gap_solver_family": "vqe",
+            "route_solver_family": "classical",
+            "route_quantum_qubit_threshold": 16,
+            "route_quantum_fallback": True,
+            "route_tsp_penalty": None,
+            "variant": "standard",
+            "measurement_mode": "expectation",
+            "ansatz_type": "efficient_su2",
+            "vqe_reps": 1,
+            "entanglement": "linear",
+            "optimizer_method": "COBYLA",
+            "optimizer_maxiter": 150,
+            "optimizer_tol": 1e-3,
+            "cvar_alpha": 0.25,
+            "estimator_shots": DEFAULT_ESTIMATOR_SHOTS,
+            "sampler_shots": DEFAULT_SAMPLER_SHOTS,
+            "learning_rate": 0.05,
+            "seed": 17,
+            "penalty": None,
+            "pce_local_search": False,
+            "final_local_search": False,
+            "cvrp_seed_method": "depot_farthest",
+            "cvrp_gap_penalty_method": "hard_slack",
+            "cvrp_taylor_alpha": 10.0,
+            "cvrp_tilted_kappa": 5.0,
+            "cvrp_tilted_s_frac": 0.10,
+            "cvrp_tilted_s_min": 1.0,
+        }
 
     return {
         "solver_family": "vqe",
@@ -443,6 +925,53 @@ POLICY_SNAPSHOT_KEYS = (
     "ma_tying",
     "initialization",
     "seed",
+    "gap_solver_family",
+    "route_solver_family",
+    "route_quantum_qubit_threshold",
+    "route_quantum_fallback",
+    "route_tsp_penalty",
+    "route_vqe_reps",
+    "route_reps",
+    "route_ansatz_type",
+    "route_entanglement",
+    "route_optimizer_method",
+    "route_optimizer_maxiter",
+    "route_optimizer_tol",
+    "route_estimator_shots",
+    "route_sampler_shots",
+    "route_measurement_mode",
+    "route_cvar_alpha",
+    "route_qrao_max_vars_per_qubit",
+    "route_qrac_type",
+    "route_rounding",
+    "route_pce_k",
+    "route_pce_depth",
+    "route_pce_alpha",
+    "route_pce_beta",
+    "gap_vqe_reps",
+    "gap_reps",
+    "gap_ansatz_type",
+    "gap_entanglement",
+    "gap_optimizer_method",
+    "gap_optimizer_maxiter",
+    "gap_optimizer_tol",
+    "gap_estimator_shots",
+    "gap_sampler_shots",
+    "gap_measurement_mode",
+    "gap_cvar_alpha",
+    "gap_qrao_max_vars_per_qubit",
+    "gap_qrac_type",
+    "gap_rounding",
+    "gap_pce_k",
+    "gap_pce_depth",
+    "gap_pce_alpha",
+    "gap_pce_beta",
+    "cvrp_seed_method",
+    "cvrp_gap_penalty_method",
+    "cvrp_taylor_alpha",
+    "cvrp_tilted_kappa",
+    "cvrp_tilted_s_frac",
+    "cvrp_tilted_s_min",
 )
 
 
@@ -535,7 +1064,13 @@ def _attempt_shot_accounting(policy: dict, result) -> dict[str, int]:
     sampler_shots = int(policy.get("sampler_shots", DEFAULT_SAMPLER_SHOTS))
     optimizer_iterations = int(getattr(result, "optimizer_iterations", 0) or 0)
     optimization_shots = estimator_shots * max(optimizer_iterations, 0)
-    sampling_shots = sampler_shots
+    result_sampling_shots = int(getattr(result, "num_shots", 0) or 0)
+    if result_sampling_shots == 0 and not getattr(result, "counts", {}):
+        sampling_shots = 0
+    elif result_sampling_shots > 0:
+        sampling_shots = result_sampling_shots
+    else:
+        sampling_shots = sampler_shots
     return {
         "estimator_shots": estimator_shots,
         "sampler_shots": sampler_shots,
@@ -738,14 +1273,23 @@ def run_experiment(
     seed_override: int | None = None,
 ) -> dict:
     problem_type, size_or_filename, seed = _parse_problem_spec(problem_spec)
-    from autoqresearch.problems.registry import get_single_instance, get_mis_file_instance
+    from autoqresearch.problems.registry import (
+        get_cvrp_file_instance,
+        get_cvrp_instance,
+        get_single_instance,
+        get_mis_file_instance,
+    )
     from autoqresearch.solvers.qubo_primitives import (
+        check_cvrp_feasibility,
         check_mis_feasibility,
         check_qubo_feasibility,
+        compute_cvrp_best_feasible_ar,
+        compute_cvrp_feasibility_rate,
         compute_best_feasible_ar,
         compute_feasibility_rate,
         compute_mis_best_feasible_ar,
         compute_mis_feasibility_rate,
+        cvrp_objective_value,
         fixed_repair,
         mis_objective_value,
         qubo_objective_value,
@@ -763,23 +1307,52 @@ def run_experiment(
             policy_override.get("penalty") if policy_override else None
         )
         problem = get_mis_file_instance(size_or_filename, penalty=mis_penalty)
+    elif problem_type == "cvrp_file":
+        override = policy_override or {}
+        problem = get_cvrp_file_instance(
+            str(size_or_filename),
+            capacity_method=str(override.get("cvrp_gap_penalty_method", "tilted")),
+            seed_method=str(override.get("cvrp_seed_method", "depot_farthest")),
+            gap_penalty=override.get("penalty"),
+            taylor_alpha=float(override.get("cvrp_taylor_alpha", 10.0)),
+            tilted_kappa=float(override.get("cvrp_tilted_kappa", 5.0)),
+            tilted_s_frac=float(override.get("cvrp_tilted_s_frac", 0.10)),
+            tilted_s_min=float(override.get("cvrp_tilted_s_min", 1.0)),
+        )
+    elif problem_type == "cvrp":
+        override = policy_override or {}
+        problem = get_cvrp_instance(
+            int(size_or_filename),
+            seed,
+            capacity_method=str(override.get("cvrp_gap_penalty_method", "tilted")),
+            seed_method=str(override.get("cvrp_seed_method", "depot_farthest")),
+            gap_penalty=override.get("penalty"),
+            taylor_alpha=float(override.get("cvrp_taylor_alpha", 10.0)),
+            tilted_kappa=float(override.get("cvrp_tilted_kappa", 5.0)),
+            tilted_s_frac=float(override.get("cvrp_tilted_s_frac", 0.10)),
+            tilted_s_min=float(override.get("cvrp_tilted_s_min", 1.0)),
+        )
     else:
         problem = get_single_instance(problem_type, size_or_filename, seed)
     initial_family = (
         solver_family
+        or (str(policy_override.get("gap_solver_family")) if policy_override and policy_override.get("gap_solver_family") else None)
         or (str(policy_override.get("solver_family")) if policy_override and policy_override.get("solver_family") else None)
         or choose_solver_family(problem)
     )
     base_policy = build_base_policy(problem, initial_family)
     base_policy = _merge_policy_override(base_policy, policy_override)
     base_policy["solver_family"] = initial_family
+    if problem.problem_type == "cvrp":
+        base_policy["gap_solver_family"] = str(base_policy.get("gap_solver_family", initial_family)).lower()
+        base_policy["solver_family"] = base_policy["gap_solver_family"]
     if seed_override is not None:
         base_policy["seed"] = int(seed_override)
     policy_mode = "static" if policy_override is not None else "adaptive"
     policy_source = "policy_file" if policy_file is not None else "policy_json" if policy_json is not None else "default"
 
     print(
-        f"Problem: {problem.name} (n_items={problem.metadata.get('num_items', '?')}, "
+        f"Problem: {problem.name} (n_items={problem.metadata.get('num_items', problem.metadata.get('num_customers', '?'))}, "
         f"n_qubo={problem.num_variables}, optimal={problem.optimal_value:.2f})"
     )
     print(
@@ -803,7 +1376,14 @@ def run_experiment(
             policy = adapt_policy(attempt, history, problem, base_policy)
         if seed_override is not None:
             policy["seed"] = int(seed_override)
-        attempt_family = str(policy.get("solver_family", initial_family)).lower()
+        if problem.problem_type == "cvrp":
+            attempt_family = str(
+                policy.get("gap_solver_family")
+                or policy.get("solver_family", initial_family)
+            ).lower()
+            policy["gap_solver_family"] = attempt_family
+        else:
+            attempt_family = str(policy.get("solver_family", initial_family)).lower()
         policy["solver_family"] = attempt_family
         policy["pce_local_search"] = False
         policy["final_local_search"] = False
@@ -824,13 +1404,16 @@ def run_experiment(
             policy["qrac_type"] = qrao_ratio
         if attempt_family == "pce" and "pce_k" in attempt_base and "pce_k" not in policy:
             policy["pce_k"] = attempt_base["pce_k"]
-        solve_fn = _get_solver_fn(attempt_family)
+        solve_fn = None if problem.problem_type == "cvrp" else _get_solver_fn(attempt_family)
 
         backend = _make_backend(policy, backend_mode)
 
         t0 = time.time()
         try:
-            result = solve_fn(problem, policy, backend)
+            if problem.problem_type == "cvrp":
+                result = _solve_cvrp_staged(problem, policy, backend)
+            else:
+                result = solve_fn(problem, policy, backend)
         except Exception as exc:
             print(f"  Attempt {attempt}: FAILED ({exc})")
             attempt_records.append(
@@ -861,6 +1444,13 @@ def run_experiment(
             ar = min(1.0, max(0.0, ar))
             feas_rate = compute_mis_feasibility_rate(result.counts, problem)
             attempt_best_feas_ar = compute_mis_best_feasible_ar(result.counts, problem)
+        elif problem.problem_type == "cvrp":
+            is_feasible = bool(result.is_feasible and check_cvrp_feasibility(_bs, problem))
+            found_cost = float(result.best_objective if result.best_objective is not None else cvrp_objective_value(_bs, problem))
+            ar = (float(problem.optimal_value) / max(found_cost, 1e-10)) if is_feasible and np.isfinite(found_cost) else 0.0
+            ar = min(1.0, max(0.0, ar))
+            feas_rate = compute_cvrp_feasibility_rate(result.counts, problem)
+            attempt_best_feas_ar = compute_cvrp_best_feasible_ar(result.counts, problem)
         else:
             # Generic fallback
             is_feasible = problem.is_feasible(_bs)
@@ -898,6 +1488,8 @@ def run_experiment(
             _f = (
                 check_mis_feasibility(_xarr, problem)
                 if problem.problem_type == "mis"
+                else check_cvrp_feasibility(_xarr, problem)
+                if problem.problem_type == "cvrp"
                 else True
             )
             _top10.append({"count": _cnt, "prob": round(_cnt / _total_shots, 4),
@@ -926,6 +1518,7 @@ def run_experiment(
             best_outcome = outcome
 
         attempt_stats = _attempt_shot_accounting(policy, result)
+        result_metadata = dict(getattr(result, "metadata", {}) or {})
         attempt_records.append(
             {
                 "attempt": attempt,
@@ -949,6 +1542,12 @@ def run_experiment(
                 "total_gate_count": int(getattr(result, "total_gate_count", 0)),
                 "num_qubits": int(getattr(result, "num_qubits", 0)),
                 "num_parameters": int(getattr(result, "num_parameters", 0)),
+                "post_repair_source": result_metadata.get("post_repair_source"),
+                "repair_applied": bool(result_metadata.get("repair_applied", False)),
+                "classical_fallback": bool(result_metadata.get("classical_fallback", False)),
+                "raw_count_space": result_metadata.get("raw_count_space", "full_gap"),
+                "hybrid_ambiguous_count": result_metadata.get("hybrid_ambiguous_count"),
+                "hybrid_fixed_count": result_metadata.get("hybrid_fixed_count"),
                 "top1_probability": _top1_prob,
                 "top10_summary": _top10,
                 **attempt_stats,
@@ -975,6 +1574,13 @@ def run_experiment(
                 f"cnt={_entry['count']}|sel={_entry['selected']}|{_fchar}"
             )
         print(f"    top10: [{', '.join(_t10_parts)}]")
+        if result_metadata.get("post_repair_source"):
+            print(
+                "    staged_source: "
+                f"{result_metadata.get('post_repair_source')} "
+                f"classical_fallback={int(bool(result_metadata.get('classical_fallback', False)))} "
+                f"raw_count_space={result_metadata.get('raw_count_space', 'full_gap')}"
+            )
 
         attempt += 1
         if time.time() - t_total > timeout:
@@ -1027,6 +1633,12 @@ def run_experiment(
                 mis_size = mis_objective_value(_bs, problem)
                 best_ar = (mis_size / max(problem.optimal_value, 1e-10)) if best_feasible else 0.0
                 best_feas_rate = compute_mis_feasibility_rate(best_raw_result.counts, problem)
+            elif problem.problem_type == "cvrp":
+                best_feasible = bool(best_raw_result.is_feasible and check_cvrp_feasibility(_bs, problem))
+                best_cost = float(best_raw_result.best_objective if best_raw_result.best_objective is not None else cvrp_objective_value(_bs, problem))
+                best_ar = (float(problem.optimal_value) / max(best_cost, 1e-10)) if best_feasible and np.isfinite(best_cost) else 0.0
+                best_ar = min(1.0, max(0.0, best_ar))
+                best_feas_rate = compute_cvrp_feasibility_rate(best_raw_result.counts, problem)
             else:
                 obj_val = problem.objective_value(_bs)
                 best_feasible = problem.is_feasible(_bs)
@@ -1149,8 +1761,11 @@ def run_experiment(
         "policy_source": policy_source,
         "problem_spec": problem_spec,
         "problem": problem.name,
-        "problem_type": problem_type,
-        "size": size_or_filename if isinstance(size_or_filename, int) else problem.num_variables,
+        "problem_type": problem.problem_type,
+        "size": problem.metadata.get(
+            "num_customers",
+            size_or_filename if isinstance(size_or_filename, int) else problem.num_variables,
+        ),
         "seed": seed,
         "seed_override": int(seed_override) if seed_override is not None else None,
         "backend": backend_mode,

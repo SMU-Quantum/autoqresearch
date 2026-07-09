@@ -36,7 +36,7 @@ from qiskit_optimization.algorithms.qrao import (
     QuantumRandomAccessOptimizer,
     SemideterministicRounding,
 )
-from qiskit_optimization.minimum_eigensolvers import VQE as OptimizationVQE
+from qiskit_algorithms.minimum_eigensolvers import VQE as OptimizationVQE
 from qiskit_optimization.problems.variable import VarType
 
 from ..backends.factory import BackendBundle, BackendConfig, create_execution_context

@@ -58,7 +58,7 @@ class PCESolver(BaseSolver):
         t0 = time.time()
         if problem.problem_type == "maxcut":
             result = solve_pce(problem, pol, backend)
-        elif problem.problem_type in ("knapsack", "mis"):
+        elif problem.problem_type in ("knapsack", "mis", "cvrp", "cvrp_tsp"):
             # Both knapsack and MIS have a QUBO that can be converted to
             # weighted MaxCut for PCE.  The helper _qubo_pce_graph()
             # is a generic QUBO → weighted-MaxCut reduction.

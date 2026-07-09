@@ -1,0 +1,7 @@
+family	num_nodes	best_gap	eval_group_id	split	suite	workflow	policy_summary
+hybrid	12	0.010101	32	train	cvrp_curriculum_12	split	HYBRID efficientsu2 d=1 COBYLA
+qrao	8	0.0	26	replay_8	cvrp_scout_8	scout	QRAO realamplitudes d=1 COBYLA
+qrao	10	0.0984155	26	replay_10	cvrp_curriculum_10	scout	QRAO realamplitudes d=1 COBYLA
+vqe	8	0.0	25	replay_8	cvrp_scout_8	scout	VQE efficientsu2 d=1 COBYLA
+vqe	10	0.0	25	replay_10	cvrp_curriculum_10	scout	VQE efficientsu2 d=1 COBYLA
+vqe	12	1.0	29	test	cvrp_benchmark_e13	final	VQE efficientsu2 d=1 COBYLA

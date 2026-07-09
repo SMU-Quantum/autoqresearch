@@ -34,6 +34,30 @@ What it does:
 
 Example commands:
 
+CVRP E-n13 retained policy on IBM hardware:
+
+```bash
+./.venv/bin/python hardware_runs/run_cvrp_e13_hardware.py \
+  --ibm-credentials-json hardware_runs/ibm_credentials.json
+```
+
+Preview the CVRP hardware plan without submitting IBM jobs:
+
+```bash
+./.venv/bin/python hardware_runs/run_cvrp_e13_hardware.py --plan-only
+```
+
+For a cheaper QPU smoke test before the full retained policy, reduce only the hardware budget:
+
+```bash
+./.venv/bin/python hardware_runs/run_cvrp_e13_hardware.py \
+  --ibm-credentials-json hardware_runs/ibm_credentials.json \
+  --optimizer-maxiter 10 \
+  --estimator-shots 512 \
+  --sampler-shots 2048 \
+  --force-rerun
+```
+
 ```bash
 ./.venv/bin/python hardware_runs/run_autoq_hardware.py \
   --retained-only \
@@ -60,7 +84,10 @@ Example commands:
 Notes:
 
 - `--plan-only` resolves the instances and prints the starting policy without touching IBM Runtime.
+- The CVRP E-n13 runner is intentionally limited to `E-n13-k4`; it uses the retained hybrid policy and submits the 16-qubit reduced GAP refinement to IBM hardware, with classical exact route TSP after sampling.
 - The default runner mode is the adaptive multi-attempt controller from `experiment.py`.
 - `--static-retained` replays one fixed retained-instance winner per instance if you specifically want that benchmark.
 - Checkpoints live under `hardware_runs/checkpoints_autoq/mis.json` by default.
 - Output runs land under `hardware_runs/results_hardware/mis/`.
+- CVRP E-n13 checkpoints live under `hardware_runs/checkpoints_autoq/cvrp_e13.json`.
+- CVRP E-n13 output runs land under `hardware_runs/results_hardware/cvrp/`.

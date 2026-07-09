@@ -15,6 +15,7 @@ scipy
 networkx
 matplotlib
 cplex
+gurobipy
 # Experiment tracking
 GitPython
 

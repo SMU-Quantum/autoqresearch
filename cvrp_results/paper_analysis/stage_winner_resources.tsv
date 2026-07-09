@@ -1,0 +1,5 @@
+stage	suite	split	eval_group_id	family	policy_summary	instance_count	avg_num_qubits	avg_circuit_depth	avg_cnot_count	avg_num_parameters	avg_wall_time
+8-customer stage	cvrp_curriculum_8	train	15	vqe	VQE efficientsu2 d=1 COBYLA	3	26.0	29.0	25.0	104.0	142.80640029907227
+10-customer stage	cvrp_curriculum_10	train	21	vqe	VQE efficientsu2 d=1 COBYLA	2	20.0	23.0	19.0	80.0	77.06765115261078
+12-customer stage single run	cvrp_curriculum_12	train	32	hybrid	HYBRID efficientsu2 d=1 COBYLA	1	3.0	6.0	2.0	12.0	4.69478702545166
+E-n13 held-out	cvrp_benchmark_e13	test	33	hybrid	HYBRID efficientsu2 d=1 COBYLA	1	16.0	19.0	15.0	64.0	28.86318802833557

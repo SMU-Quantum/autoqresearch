@@ -1,0 +1,23 @@
+diff --git a/experiment.py b/experiment.py
+index c125b7c..6e8e72d 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -128,7 +128,7 @@ def build_base_policy(problem, family: str) -> dict:
+         return {
+             **common,
+             "variant": "standard",
+-            "ansatz_type": "efficient_su2" if getattr(problem, "problem_type", "") == "cvrp" else "real_amplitudes",
++            "ansatz_type": "real_amplitudes",
+             "vqe_reps": 1,
+             "measurement_mode": "expectation" if getattr(problem, "problem_type", "") == "cvrp" else "cvar",
+             "cvar_alpha": 0.25 if getattr(problem, "problem_type", "") == "cvrp" else 0.1,
+@@ -204,6 +204,9 @@ def should_continue(
+     n_vars = getattr(problem, "num_variables", 0) if problem is not None else 0
+     last = history[-1]
+ 
++    if getattr(problem, "problem_type", "") == "cvrp":
++        return False
++
+     if n_vars <= 16:
+         return False
+     if last.optimality_gap <= 0.0:

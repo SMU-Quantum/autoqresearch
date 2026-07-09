@@ -1,0 +1,31 @@
+diff --git a/experiment.py b/experiment.py
+index e9f1ac9..0d8d028 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -121,7 +121,7 @@ def build_base_policy(problem, family: str) -> dict:
+                 "cvrp_seed_method": "depot_farthest",
+                 "cvrp_gap_penalty_method": "tilted",
+                 "cvrp_taylor_alpha": 10.0,
+-                "cvrp_tilted_kappa": 5.0,
++                "cvrp_tilted_kappa": 10.0,
+                 "cvrp_tilted_s_frac": 0.10,
+                 "cvrp_tilted_s_min": 1.0,
+             }
+@@ -1087,7 +1087,7 @@ def run_experiment(
+             seed_method=str(override.get("cvrp_seed_method", "depot_farthest")),
+             gap_penalty=override.get("penalty"),
+             taylor_alpha=float(override.get("cvrp_taylor_alpha", 10.0)),
+-            tilted_kappa=float(override.get("cvrp_tilted_kappa", 5.0)),
++            tilted_kappa=float(override.get("cvrp_tilted_kappa", 10.0)),
+             tilted_s_frac=float(override.get("cvrp_tilted_s_frac", 0.10)),
+             tilted_s_min=float(override.get("cvrp_tilted_s_min", 1.0)),
+         )
+@@ -1100,7 +1100,7 @@ def run_experiment(
+             seed_method=str(override.get("cvrp_seed_method", "depot_farthest")),
+             gap_penalty=override.get("penalty"),
+             taylor_alpha=float(override.get("cvrp_taylor_alpha", 10.0)),
+-            tilted_kappa=float(override.get("cvrp_tilted_kappa", 5.0)),
++            tilted_kappa=float(override.get("cvrp_tilted_kappa", 10.0)),
+             tilted_s_frac=float(override.get("cvrp_tilted_s_frac", 0.10)),
+             tilted_s_min=float(override.get("cvrp_tilted_s_min", 1.0)),
+         )

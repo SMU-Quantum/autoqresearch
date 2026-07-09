@@ -1,0 +1,31 @@
+diff --git a/experiment.py b/experiment.py
+index e9f1ac9..e5f4e33 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -119,7 +119,7 @@ def build_base_policy(problem, family: str) -> dict:
+                 "estimator_shots": 2048,
+                 "sampler_shots": 16384,
+                 "cvrp_seed_method": "depot_farthest",
+-                "cvrp_gap_penalty_method": "tilted",
++                "cvrp_gap_penalty_method": "taylor",
+                 "cvrp_taylor_alpha": 10.0,
+                 "cvrp_tilted_kappa": 5.0,
+                 "cvrp_tilted_s_frac": 0.10,
+@@ -1083,7 +1083,7 @@ def run_experiment(
+         override = policy_override or {}
+         problem = get_cvrp_file_instance(
+             str(size_or_filename),
+-            capacity_method=str(override.get("cvrp_gap_penalty_method", "tilted")),
++            capacity_method=str(override.get("cvrp_gap_penalty_method", "taylor")),
+             seed_method=str(override.get("cvrp_seed_method", "depot_farthest")),
+             gap_penalty=override.get("penalty"),
+             taylor_alpha=float(override.get("cvrp_taylor_alpha", 10.0)),
+@@ -1096,7 +1096,7 @@ def run_experiment(
+         problem = get_cvrp_instance(
+             int(size_or_filename),
+             seed,
+-            capacity_method=str(override.get("cvrp_gap_penalty_method", "tilted")),
++            capacity_method=str(override.get("cvrp_gap_penalty_method", "taylor")),
+             seed_method=str(override.get("cvrp_seed_method", "depot_farthest")),
+             gap_penalty=override.get("penalty"),
+             taylor_alpha=float(override.get("cvrp_taylor_alpha", 10.0)),

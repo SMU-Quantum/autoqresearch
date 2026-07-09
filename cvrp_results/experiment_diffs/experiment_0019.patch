@@ -1,0 +1,13 @@
+diff --git a/experiment.py b/experiment.py
+index e9f1ac9..f61f568 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -79,7 +79,7 @@ def choose_solver_family(problem) -> str:
+     to switch families through experimentation.
+     """
+     if getattr(problem, "problem_type", "") == "cvrp":
+-        return "vqe"
++        return "qrao"
+     if getattr(problem, "num_variables", 0) <= 16:
+         return "qaoa"
+     return "qrao"

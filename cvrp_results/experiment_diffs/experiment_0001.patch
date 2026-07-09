@@ -1,0 +1,30 @@
+diff --git a/experiment.py b/experiment.py
+index c125b7c..df55e8b 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -79,7 +79,7 @@ def choose_solver_family(problem) -> str:
+     to switch families through experimentation.
+     """
+     if getattr(problem, "problem_type", "") == "cvrp":
+-        return "vqe"
++        return "qrao"
+     if getattr(problem, "num_variables", 0) <= 16:
+         return "qaoa"
+     return "qrao"
+@@ -152,6 +152,16 @@ def build_base_policy(problem, family: str) -> dict:
+             "pce_beta": 0.5,
+         }
+     if family == "qrao":
++        if getattr(problem, "problem_type", "") == "cvrp":
++            return {
++                **common,
++                "qrao_max_vars_per_qubit": 2,
++                "qrac_type": 2,
++                "rounding": "semideterministic",
++                "ansatz_type": "real_amplitudes",
++                "vqe_reps": 1,
++                "measurement_mode": "expectation",
++            }
+         n_vars = getattr(problem, "num_variables", 0)
+         problem_name = str(getattr(problem, "name", "") or "")
+         if n_vars > 32:

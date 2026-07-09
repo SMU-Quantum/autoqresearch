@@ -1,0 +1,302 @@
+{
+  "cvrp_curriculum_10": [
+    {
+      "candidate_decision": "keep",
+      "eval_group_id": 20,
+      "experiment_number": 16,
+      "metrics": {
+        "replay_8_suite_average_gap": 0.091085,
+        "train_suite_average_gap": 0.04721
+      },
+      "prompt_variant": "full",
+      "rank_tuple": [
+        0.04721,
+        0.091085,
+        201.89401578903198
+      ],
+      "snapshot_path": "cvrp_results/policy_checkpoints/cvrp_curriculum_10/scout_0016_06f9787d.py",
+      "source_sha256": "06f9787d9e0f9105fe91c81e998d26ce6ee2f05509394ac01c936f68e1546473",
+      "suite": "cvrp_curriculum_10",
+      "timestamp": "2026-04-11T20:37:58.189676",
+      "wall_time": 201.89401578903198,
+      "workflow": "scout"
+    },
+    {
+      "candidate_decision": "discard",
+      "eval_group_id": 19,
+      "experiment_number": 15,
+      "metrics": {
+        "replay_8_suite_average_gap": 0.134564,
+        "train_suite_average_gap": 0.04721
+      },
+      "prompt_variant": "full",
+      "rank_tuple": [
+        0.04721,
+        0.134564,
+        159.2642879486084
+      ],
+      "snapshot_path": "cvrp_results/policy_checkpoints/cvrp_curriculum_10/scout_0015_fb729cf1.py",
+      "source_sha256": "fb729cf16d81fba302ba221c3b0d286544525ee3fe9953a19becc5bab0b73646",
+      "suite": "cvrp_curriculum_10",
+      "timestamp": "2026-04-11T20:33:45.011522",
+      "wall_time": 159.2642879486084,
+      "workflow": "scout"
+    },
+    {
+      "candidate_decision": "keep",
+      "eval_group_id": 17,
+      "experiment_number": 13,
+      "metrics": {
+        "replay_8_suite_average_gap": 0.112352,
+        "train_suite_average_gap": 1.0
+      },
+      "prompt_variant": "full",
+      "rank_tuple": [
+        1.0,
+        0.112352,
+        634.7455608844757
+      ],
+      "snapshot_path": "cvrp_results/policy_checkpoints/cvrp_curriculum_10/scout_0013_5ffe9468.py",
+      "source_sha256": "5ffe9468767c01aa54d29fc367c8b46119977631bafdca4af13e168e37a25961",
+      "suite": "cvrp_curriculum_10",
+      "timestamp": "2026-04-11T19:55:20.122268",
+      "wall_time": 634.7455608844757,
+      "workflow": "scout"
+    },
+    {
+      "candidate_decision": "discard",
+      "eval_group_id": 18,
+      "experiment_number": 14,
+      "metrics": {
+        "replay_8_suite_average_gap": 0.583333,
+        "train_suite_average_gap": 1.0
+      },
+      "prompt_variant": "full",
+      "rank_tuple": [
+        1.0,
+        0.583333,
+        1823.3070793151855
+      ],
+      "snapshot_path": "cvrp_results/policy_checkpoints/cvrp_curriculum_10/scout_0014_ee821289.py",
+      "source_sha256": "ee821289b1f2b8deb9ddf220524bcda759f97997667eb65d59447ffb7d348cdf",
+      "suite": "cvrp_curriculum_10",
+      "timestamp": "2026-04-11T20:28:52.427443",
+      "wall_time": 1823.3070793151855,
+      "workflow": "scout"
+    }
+  ],
+  "cvrp_curriculum_12": [
+    {
+      "candidate_decision": "discard",
+      "eval_group_id": 25,
+      "experiment_number": 18,
+      "metrics": {
+        "replay_10_suite_average_gap": 0.0,
+        "replay_8_suite_average_gap": 0.0,
+        "train_suite_average_gap": 1.0
+      },
+      "prompt_variant": "full",
+      "rank_tuple": [
+        1.0,
+        0.0,
+        694.9456942081451
+      ],
+      "snapshot_path": "cvrp_results/policy_checkpoints/cvrp_curriculum_12/scout_0018_ece3a1bb.py",
+      "source_sha256": "ece3a1bbb7003f018fe0457d43d6b4d1df9f5016060e0ed14e788b84b03247ce",
+      "suite": "cvrp_curriculum_12",
+      "timestamp": "2026-04-11T21:24:20.441773",
+      "wall_time": 694.9456942081451,
+      "workflow": "scout"
+    },
+    {
+      "candidate_decision": "discard",
+      "eval_group_id": 26,
+      "experiment_number": 19,
+      "metrics": {
+        "replay_10_suite_average_gap": 0.098416,
+        "replay_8_suite_average_gap": 0.0,
+        "train_suite_average_gap": 1.0
+      },
+      "prompt_variant": "full",
+      "rank_tuple": [
+        1.0,
+        0.049208,
+        712.8555288314819
+      ],
+      "snapshot_path": "cvrp_results/policy_checkpoints/cvrp_curriculum_12/scout_0019_c80b01f2.py",
+      "source_sha256": "c80b01f2ae914cfbdaac700677b9a561593109ddfea4861eaeedc6c818c019db",
+      "suite": "cvrp_curriculum_12",
+      "timestamp": "2026-04-11T21:37:39.285179",
+      "wall_time": 712.8555288314819,
+      "workflow": "scout"
+    },
+    {
+      "candidate_decision": "discard",
+      "eval_group_id": 27,
+      "experiment_number": 20,
+      "metrics": {
+        "replay_10_suite_average_gap": 0.04721,
+        "replay_8_suite_average_gap": 0.091085,
+        "train_suite_average_gap": 1.0
+      },
+      "prompt_variant": "full",
+      "rank_tuple": [
+        1.0,
+        0.0691475,
+        535.1614429950714
+      ],
+      "snapshot_path": "cvrp_results/policy_checkpoints/cvrp_curriculum_12/scout_0020_29b4ca3b.py",
+      "source_sha256": "29b4ca3b509340a852e3af5d33d06d7614a7454cf30e806cbcea0ce68d79f979",
+      "suite": "cvrp_curriculum_12",
+      "timestamp": "2026-04-11T21:47:46.486904",
+      "wall_time": 535.1614429950714,
+      "workflow": "scout"
+    },
+    {
+      "candidate_decision": "keep",
+      "eval_group_id": 24,
+      "experiment_number": 17,
+      "metrics": {
+        "replay_10_suite_average_gap": 0.04721,
+        "replay_8_suite_average_gap": 0.091085,
+        "train_suite_average_gap": 1.0
+      },
+      "prompt_variant": "full",
+      "rank_tuple": [
+        1.0,
+        0.0691475,
+        714.1577537059784
+      ],
+      "snapshot_path": "cvrp_results/policy_checkpoints/cvrp_curriculum_12/scout_0017_06f9787d.py",
+      "source_sha256": "06f9787d9e0f9105fe91c81e998d26ce6ee2f05509394ac01c936f68e1546473",
+      "suite": "cvrp_curriculum_12",
+      "timestamp": "2026-04-11T21:11:32.938288",
+      "wall_time": 714.1577537059784,
+      "workflow": "scout"
+    },
+    {
+      "candidate_decision": "discard",
+      "eval_group_id": 28,
+      "experiment_number": 21,
+      "metrics": {
+        "replay_10_suite_average_gap": 0.04721,
+        "replay_8_suite_average_gap": 0.134564,
+        "train_suite_average_gap": 1.0
+      },
+      "prompt_variant": "full",
+      "rank_tuple": [
+        1.0,
+        0.090887,
+        534.2815589904785
+      ],
+      "snapshot_path": "cvrp_results/policy_checkpoints/cvrp_curriculum_12/scout_0021_21c4d2b0.py",
+      "source_sha256": "21c4d2b0846a02f00beee9d21123269af07d9de7f8ca45b6c0784ba549241628",
+      "suite": "cvrp_curriculum_12",
+      "timestamp": "2026-04-11T21:57:44.410135",
+      "wall_time": 534.2815589904785,
+      "workflow": "scout"
+    }
+  ],
+  "cvrp_curriculum_8": [
+    {
+      "candidate_decision": "keep",
+      "eval_group_id": 6,
+      "experiment_number": 5,
+      "metrics": {
+        "train_suite_average_gap": 0.112352
+      },
+      "prompt_variant": "full",
+      "rank_tuple": [
+        0.112352,
+        0.0,
+        284.38204407691956
+      ],
+      "snapshot_path": "cvrp_results/policy_checkpoints/cvrp_curriculum_8/scout_0005_9886077f.py",
+      "source_sha256": "9886077f791972cae27967f620ed74ec368528c840616a56a8dfe5d69a142e43",
+      "suite": "cvrp_curriculum_8",
+      "timestamp": "2026-04-11T18:33:43.952706",
+      "wall_time": 284.38204407691956,
+      "workflow": "scout"
+    },
+    {
+      "candidate_decision": "discard",
+      "eval_group_id": 13,
+      "experiment_number": 12,
+      "metrics": {
+        "train_suite_average_gap": 0.112352
+      },
+      "prompt_variant": "full",
+      "rank_tuple": [
+        0.112352,
+        0.0,
+        287.2485136985779
+      ],
+      "snapshot_path": "cvrp_results/policy_checkpoints/cvrp_curriculum_8/scout_0012_5ffe9468.py",
+      "source_sha256": "5ffe9468767c01aa54d29fc367c8b46119977631bafdca4af13e168e37a25961",
+      "suite": "cvrp_curriculum_8",
+      "timestamp": "2026-04-11T19:17:20.441558",
+      "wall_time": 287.2485136985779,
+      "workflow": "scout"
+    },
+    {
+      "candidate_decision": "discard",
+      "eval_group_id": 7,
+      "experiment_number": 6,
+      "metrics": {
+        "train_suite_average_gap": 0.112352
+      },
+      "prompt_variant": "full",
+      "rank_tuple": [
+        0.112352,
+        0.0,
+        471.61031198501587
+      ],
+      "snapshot_path": "cvrp_results/policy_checkpoints/cvrp_curriculum_8/scout_0006_42aceb37.py",
+      "source_sha256": "42aceb377af878aead0e5907e2382af2a06f08cfc9eb651b967949110c21e803",
+      "suite": "cvrp_curriculum_8",
+      "timestamp": "2026-04-11T18:42:16.557700",
+      "wall_time": 471.61031198501587,
+      "workflow": "scout"
+    },
+    {
+      "candidate_decision": "keep",
+      "eval_group_id": 5,
+      "experiment_number": 4,
+      "metrics": {
+        "train_suite_average_gap": 0.172828
+      },
+      "prompt_variant": "full",
+      "rank_tuple": [
+        0.172828,
+        0.0,
+        193.95044112205505
+      ],
+      "snapshot_path": "cvrp_results/policy_checkpoints/cvrp_curriculum_8/scout_0004_25de5fbb.py",
+      "source_sha256": "25de5fbb56725a17ee9b4a7d7a31d11acfc4acbb0bb3abf5a674533c64723a85",
+      "suite": "cvrp_curriculum_8",
+      "timestamp": "2026-04-11T18:28:19.656339",
+      "wall_time": 193.95044112205505,
+      "workflow": "scout"
+    },
+    {
+      "candidate_decision": "discard",
+      "eval_group_id": 8,
+      "experiment_number": 7,
+      "metrics": {
+        "train_suite_average_gap": 0.179119
+      },
+      "prompt_variant": "full",
+      "rank_tuple": [
+        0.179119,
+        0.0,
+        287.7576220035553
+      ],
+      "snapshot_path": "cvrp_results/policy_checkpoints/cvrp_curriculum_8/scout_0007_79f99288.py",
+      "source_sha256": "79f99288b39b61186c37cc268a9f83d66dbb6a9685f0526ea46e04a28d26f02f",
+      "suite": "cvrp_curriculum_8",
+      "timestamp": "2026-04-11T18:48:03.196351",
+      "wall_time": 287.7576220035553,
+      "workflow": "scout"
+    }
+  ]
+}

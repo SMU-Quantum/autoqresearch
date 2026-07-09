@@ -1,0 +1,26 @@
+NAME : Toy-n7-k2
+COMMENT : Synthetic 6-customer CVRP instance for small quantum simulation demos
+TYPE : CVRP
+DIMENSION : 7
+EDGE_WEIGHT_TYPE : EUC_2D
+CAPACITY : 9
+NODE_COORD_SECTION
+1 50 50
+2 30 65
+3 34 42
+4 45 72
+5 64 58
+6 72 38
+7 46 28
+DEMAND_SECTION
+1 0
+2 3
+3 4
+4 2
+5 3
+6 4
+7 2
+DEPOT_SECTION
+1
+-1
+EOF

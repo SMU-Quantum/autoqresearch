@@ -1,334 +1,334 @@
-# AutoQResearch — Agent Instructions
+# AutoQResearch CVRP Program
 
-You are improving a quantum algorithm policy for Maximum Independent Set (MIS).
+You are improving a quantum algorithm policy for Capacitated Vehicle Routing Problem (CVRP).
 
-Your job is to discover the best algorithm, ansatz, hyperparameters, and adaptive strategy for solving MIS across a diverse set of graph instances. The goal is a policy that **generalises** across graph sizes and structures, not one that overfits to a single instance.
+The CVRP workflow uses the Fisher-Jaikumar cluster-first, route-second decomposition:
 
-## Non-negotiable rules
+1. Formulate clustering as a Generalized Assignment Problem (GAP) QUBO.
+2. Decode customer clusters from the GAP solution.
+3. Formulate each cluster route as a TSP QUBO.
+4. Score the final routed CVRP cost against the Gurobi reference optimum.
 
-1. Edit exactly two files: `experiment.py` (policy code) and `agent_journal.md` (your research log).
-2. Only edit the four functions in the policy surface inside `experiment.py`.
-3. Everything outside that surface is fixed evaluation infrastructure.
-4. **No classical local search.** All solvers must have `pce_local_search: False` and `final_local_search: False`. Classical bit-swap post-processing is disabled so all solver families compete purely on quantum algorithm output.
-5. **Evidence-driven exploration mandate.** Use the available degrees of freedom below and choose experiments based on observed solver behavior.
-6. **Minimum iterations.** You must run at least **15 agent iterations** before declaring your final policy.
-7. `optimality_gap` is the metric. `0.0` = found the maximum independent set. `1.0` = total failure (infeasible or trivial).
-8. MIS is a constrained problem — even finding a feasible solution (no adjacent nodes both selected) is non-trivial at scale.
-9. **Do not abort runs for taking too long.** Let every solver run to completion. Record the wall time. The tradeoff between solution quality and compute time is a finding — not a reason to skip an experiment.
+Both GAP and TSP stages are QUBOs, so both stages can use the same solver families used for MIS: VQE, CVaR VQE, QAOA, QAOA variants, QRAO, and PCE. The route stage also has a `classical` exact TSP option for cheaper comparisons and sanity checks.
 
-## Available Degrees Of Freedom
+**Recent improvement**: For larger instances (>30 QUBO variables), a **hybrid** solver family is now available. It performs a classical greedy GAP assignment, identifies ambiguous customers (those near sector boundaries), and solves only the ambiguous subset quantumly via a reduced QUBO. A **feasibility repair** post-processor is also active: when VQE produces near-feasible bitstrings, they are automatically repaired into feasible solutions by fixing assignment and capacity violations.
 
-You are not required to mechanically exhaust a checklist. Instead, use the search space below to design experiments that respond to observed failure modes in the logs:
+## Non-negotiable Rules
 
-- poor concentration: low `top1_prob`, flat `top10`, concentration guard firing
-- low feasibility: low `raw_feasibility_rate`, infeasible top samples
-- optimizer stagnation: high `convergence_stagnation`, weak cost improvement
-- runtime blowups: strong quality but unacceptable wall time
-- size-specific failure: works on 16/32 nodes but not on larger graphs
+1. Do not modify MIS artifacts. MIS results live under `mis_results/`.
+2. CVRP agent-loop artifacts must stay under `cvrp_results/`.
+3. Edit only `experiment.py` for policy changes and `cvrp_results/agent_journal.md` for the research log.
+4. Keep classical local search disabled: `pce_local_search: False` and `final_local_search: False`.
+5. Do not tune `seed` for better luck. Keep `seed=17` unless doing a post-lock robustness check.
+6. Run the baseline scout before the first policy edit.
+7. Run at least 15 agent iterations before declaring a final policy.
+8. Do not use held-out benchmark instances for keep/discard search. E-n13 is the held-out final benchmark.
 
-### Solver families
-- **VQE** — variational eigensolver with parameterised ansatz
-- **QAOA** — quantum approximate optimisation algorithm
-- **PCE** — Pauli Correlation Encoding (QUBO → weighted MaxCut reduction)
-- **QRAO** — Quantum Random Access Optimisation (qubit compression + rounding)
+## Required Baseline
 
-### VQE degrees of freedom
-- `ansatz_type`: `real_amplitudes`, `efficient_su2`, `pauli_two_design`, `brickwork`, `custom`
-- `vqe_reps`
-- `entanglement`
-- `measurement_mode`: `expectation` or `cvar`
-- `cvar_alpha`
-- `optimizer_method`, `optimizer_maxiter`, `optimizer_tol`, `learning_rate`
-- `estimator_shots`, `sampler_shots`
-- `penalty`
+The checked-in CVRP baseline is:
 
-### QAOA degrees of freedom
-- `variant`: `standard`, `warmstart`, `multiangle`
-- `reps`
-- warm-start knobs: `ws_epsilon`, `ws_source`
-- multi-angle knobs: `ma_tying`
-- `measurement_mode`: `expectation` or `cvar`
-- `cvar_alpha`
-- `optimizer_method`, `optimizer_maxiter`, `optimizer_tol`, `learning_rate`
-- `estimator_shots`, `sampler_shots`
-- `penalty`
-
-### PCE degrees of freedom
-- `pce_k`
-- `pce_depth`
-- `pce_alpha`
-- `pce_beta`
-- `ansatz_type`
-- `measurement_mode`: `expectation` or `cvar`
-- `cvar_alpha`
-- `optimizer_method`, `optimizer_maxiter`, `optimizer_tol`, `learning_rate`
-- `estimator_shots`, `sampler_shots`
-- `penalty`
-
-### QRAO degrees of freedom
-- `qrao_max_vars_per_qubit`
-- `rounding`
-- `ansatz_type`
-- `vqe_reps`
-- `entanglement`
-- `measurement_mode`: `expectation` or `cvar`
-- `cvar_alpha`
-- `optimizer_method`, `optimizer_maxiter`, `optimizer_tol`, `learning_rate`
-- `estimator_shots`, `sampler_shots`
-- `penalty`
-
-### Coverage guidance
-- Touch all solver families unless early evidence clearly rules one out.
-- Prefer deepening promising branches over spending budget on already dominated ones.
-- If standard ansatz families plateau, repeatedly show poor concentration, or fail to generalise, explicitly consider a `custom` ansatz via `custom_ansatz_fn`.
-- Use custom ansatz search deliberately: justify what structural weakness in the current ansatz you are trying to fix.
-
-### Seed policy (important)
-Seeds simulate the randomness of real quantum hardware. **Do NOT use seed as a tuning parameter.** Changing the seed to get a better result is not a valid improvement — it's luck that won't transfer to real hardware. Seeds are only for:
-- **Verification**: if you get a surprisingly good result, re-run with 2-3 different seeds to confirm it's robust, not a lucky draw.
-- **Post-lock robustness validation**: once the final policy is frozen, it is valid to run a fixed 5-seed robustness report on the held-out 64-node suite. That is evidence collection, not search.
-- **Reproducibility**: keep seed=17 as the default so results are deterministic across runs.
-
-## Training and evaluation suites
-
-### `mis_probe_16` — quick sanity check (~30s)
-Single 16-node instance (MIS=8). Use for fast testing before a full eval. `agent_harness.py` does not define a scout plan for this suite, so use a direct split evaluation or a direct `experiment.py` run instead. This path does not write to the log:
-```bash
-./.venv/bin/python evaluate_policy.py --suite mis_probe_16 --workflow split --split train --no-artifacts
-```
-
-### `mis_curriculum_16` — curriculum stage 1
-5× 16-node instances for confirmation. Use the scout workflow first; it evaluates a cheaper 2-instance proxy and maintains a beam of promising candidates.
-```bash
-./.venv/bin/python agent_harness.py --suite mis_curriculum_16 --eval-workflow scout --wall-clock-budget 1800 --beam-width 5 --no-dev
-./.venv/bin/python agent_harness.py --suite mis_curriculum_16 --promote-beam --promote-top-k 3 --restore-best
-```
-
-### `mis_curriculum_32` — curriculum stage 2
-5× 32-node instances for confirmation. The scout workflow uses a cheaper 2-instance 32-node proxy and replays a cheap 16-node proxy as a guardrail.
-```bash
-./.venv/bin/python agent_harness.py --suite mis_curriculum_32 --eval-workflow scout --wall-clock-budget 2400 --beam-width 5 --no-dev
-./.venv/bin/python agent_harness.py --suite mis_curriculum_32 --promote-beam --promote-top-k 3 --restore-best
-```
-
-### `mis_curriculum_48` — curriculum stage 3
-Single retained 48-node sparse instance for confirmation. The scout workflow tracks that retained sparse target and replays cheap 32-node and 16-node proxies as guardrails.
-
-```bash
-./.venv/bin/python agent_harness.py --suite mis_curriculum_48 --eval-workflow scout --wall-clock-budget 3000 --beam-width 5 --no-dev
-./.venv/bin/python agent_harness.py --suite mis_curriculum_48 --promote-beam --promote-top-k 3 --restore-best
-```
-
-### `mis_curriculum_64` — held-out final evaluation
-Single retained 64-node sparse held-out instance. **Do not use this suite for KEEP/DISCARD.** Run only after locking your final 48-stage policy:
-
-```bash
-./.venv/bin/python evaluate_policy.py --suite mis_curriculum_64 --workflow final --no-artifacts
-```
-
-Legacy note: `mis_train` is deprecated and removed from the public suite surface. Use the curriculum suites above instead.
-
-## What "better" means
-
-There are now two levels of evidence:
-
-- **Scout level**: cheap proxy search under a fixed wall-clock budget. The scout incumbent is updated only if the proxy primary metric improves strictly and replay proxies do not regress badly.
-- **Confirm level**: the top beam candidates are rerun on the full stage suite plus full replay guardrails. Only confirmed results count as stage winners in the journal and final summary.
-
-The replay tolerance is fixed: earlier-stage `suite_average_gap` must not worsen by more than `0.02` versus the incumbent for that stage or workflow.
-
-## Recommended workflow
-
-1. **Probe first**: test your idea on `mis_probe_16` through `evaluate_policy.py --workflow split --split train --no-artifacts` (~30s).
-2. **Scout stage 1**: search on `mis_curriculum_16` using `--eval-workflow scout`, a fixed wall-clock budget, and beam width 5.
-3. **Promote stage 1**: run `--promote-beam` on `mis_curriculum_16`, confirm the top 3 beam candidates on the full 16-node stage, and restore the best confirmed snapshot.
-4. **Scout stage 2**: carry that confirmed winner forward unchanged, seed `mis_curriculum_32`, then search with `--eval-workflow scout`.
-5. **Promote stage 2**: confirm the top 32-node beam candidates on the full 32-node stage and restore the best confirmed snapshot.
-6. **Scout stage 3**: repeat on `mis_curriculum_48`.
-7. **Promote stage 3**: confirm the top 48-node beam candidates on the full 48-node stage and restore the best confirmed snapshot.
-8. **Final**: evaluate the locked policy on `mis_curriculum_64` once, through the true `final` workflow.
-
-## The editable policy surface
-
-The checked-in starting policy is the required baseline: **VQE with `real_amplitudes` and depth (`vqe_reps`) = 1**. Other solver families remain available inside `build_base_policy()`, but they should only be activated deliberately by editing `choose_solver_family()` in response to observed evidence. There must be no baked-in warm-start QAOA default.
-
-### Available policy keys
-
-**Common to all families:**
 ```python
 {
-    "solver_family": "vqe" | "qaoa" | "pce" | "qrao",
-    "optimizer_method": "COBYLA",     # also: "SPSA", "Powell", "Nelder-Mead"
+    "solver_family": "vqe",
+    "gap_solver_family": "vqe",
+    "route_solver_family": "classical",
+    "variant": "standard",
+    "measurement_mode": "expectation",
+    "ansatz_type": "efficient_su2",
+    "vqe_reps": 1,
+    "entanglement": "linear",
+    "optimizer_method": "COBYLA",
+    "optimizer_maxiter": 150,
+    "seed": 17,
+    "cvrp_seed_method": "depot_farthest",
+    "cvrp_gap_penalty_method": "hard_slack",
+    "pce_local_search": False,
+    "final_local_search": False,
+}
+```
+
+This means the GAP clustering QUBO is solved by VQE with EfficientSU2 depth 1. Routes default to exact classical TSP so the first search isolates GAP clustering quality. For larger instances (>30 QUBO variables), the policy auto-selects `hybrid` mode which uses classical greedy + quantum refinement on ambiguous customers.
+
+## Objective
+
+The metric is `suite_average_gap`, lower is better.
+
+For CVRP, the gap is computed from full routed CVRP cost:
+
+```text
+gap = 1 - gurobi_optimal_cost / candidate_routed_cost
+```
+
+An infeasible GAP assignment, infeasible route decode, crash, or timeout is scored as `1.0`.
+
+## Solver Degrees Of Freedom
+
+Use evidence from feasibility rate, routed cost, concentration, wall time, and qubit counts to choose experiments. Do not mechanically grid search.
+
+Common quantum knobs:
+
+```python
+{
+    "solver_family": "vqe" | "qaoa" | "pce" | "qrao" | "hybrid",
+    "gap_solver_family": "vqe" | "qaoa" | "pce" | "qrao" | "hybrid",
+    "route_solver_family": "classical" | "vqe" | "qaoa" | "pce" | "qrao",
+    "measurement_mode": "expectation" | "cvar",
+    "cvar_alpha": 0.25,
+    "optimizer_method": "COBYLA" | "SPSA" | "Powell" | "Nelder-Mead",
     "optimizer_maxiter": 150,
     "optimizer_tol": 1e-3,
-    "learning_rate": 0.05,            # for SPSA
-    "estimator_shots": 1024,          # powers of 2 only
-    "sampler_shots": 1024,            # powers of 2 only
-    "seed": 17,                        # DO NOT tune — see seed policy below
-    "measurement_mode": "expectation", # or "cvar"
-    "cvar_alpha": 0.25,               # only used when measurement_mode="cvar"
-    "penalty": None,                  # None=auto, or float to override QUBO penalty
-    "pce_local_search": False,        # must stay False
-    "final_local_search": False,      # must stay False
+    "learning_rate": 0.05,
+    "estimator_shots": 1024,
+    "sampler_shots": 1024,
+    "seed": 17,
+    "penalty": None,
+    "pce_local_search": False,
+    "final_local_search": False,
 }
 ```
 
-**VQE-specific:**
+VQE and CVaR VQE:
+
 ```python
 {
+    "ansatz_type": "efficient_su2" | "real_amplitudes" | "pauli_two_design" | "brickwork" | "custom",
+    "vqe_reps": 1,
+    "entanglement": "linear" | "circular" | "full" | "sca",
+    "measurement_mode": "expectation" | "cvar",
+    "cvar_alpha": 0.25,
+}
+```
+
+QAOA:
+
+```python
+{
+    "variant": "standard" | "warmstart" | "multiangle",
+    "reps": 1,
+    "measurement_mode": "expectation" | "cvar",
+    "cvar_alpha": 0.25,
+    "ws_epsilon": 0.25,
+    "ws_source": "relaxation",
+    "ma_tying": "none" | "partial" | "full",
+}
+```
+
+QRAO:
+
+```python
+{
+    "qrao_max_vars_per_qubit": 1 | 2 | 3,
+    "rounding": "semideterministic" | "magic",
+    "ansatz_type": "efficient_su2" | "real_amplitudes" | "pauli_two_design" | "brickwork",
+    "vqe_reps": 1,
+    "entanglement": "linear" | "circular" | "full" | "sca",
+}
+```
+
+PCE:
+
+```python
+{
+    "pce_k": 2,
+    "pce_depth": 10,
+    "pce_alpha": None,
+    "pce_beta": 0.5,
+    "ansatz_type": "efficient_su2" | "real_amplitudes" | "pauli_two_design" | "brickwork",
+    "measurement_mode": "expectation" | "cvar",
+}
+```
+
+Hybrid (classical greedy + quantum sub-problem):
+
+```python
+{
+    "gap_solver_family": "hybrid",
+    "hybrid_sub_family": "vqe",
+    "hybrid_ambiguity_threshold": 0.5,
     "variant": "standard",
-    "ansatz_type": "real_amplitudes",  # also: "efficient_su2", "pauli_two_design", "brickwork", "custom"
-    "vqe_reps": 1,                    # circuit depth (1, 2, 3, ...)
-    "entanglement": "linear",         # also: "circular", "full", "sca"
-    "custom_ansatz_fn": None,         # callable(num_qubits, reps, entanglement) -> QuantumCircuit
+    "ansatz_type": "efficient_su2",
+    "vqe_reps": 1,
+    "measurement_mode": "expectation",
+    "cvar_alpha": 0.25,
 }
 ```
 
-**QAOA-specific:**
+CVRP-specific knobs:
+
 ```python
 {
-    "variant": "standard",            # also: "warmstart", "multiangle"
-    "reps": 1,                        # QAOA layers (1, 2, 3, ...)
-    # Warm-start options:
-    "ws_epsilon": 0.25,               # relaxation mixing parameter
-    "ws_source": "relaxation",        # warm-start source
-    # Multi-angle options:
-    "ma_tying": "none",               # "none", "partial", "full"
+    "cvrp_seed_method": "depot_farthest" | "angle_spread" | "sweep_sector" | "farthest_first" | "largest_demand" | "random",
+    "cvrp_gap_penalty_method": "hard_slack" | "taylor" | "tilted",
+    "gap_solver_family": "vqe" | "qaoa" | "pce" | "qrao" | "hybrid",
+    "route_solver_family": "classical" | "vqe" | "qaoa" | "pce" | "qrao",
+    "route_quantum_qubit_threshold": 16,
+    "route_quantum_fallback": True,
+    "route_tsp_penalty": None,
+    "taylor_alpha": 10.0,
+    "tilted_kappa": 5.0,
+    "tilted_s_frac": 0.10,
+    "tilted_s_min": 1.0,
 }
 ```
 
-**PCE-specific:**
-```python
-{
-    "pce_k": 2,                       # partition size
-    "pce_depth": 10,                  # PCE circuit depth
-    "pce_alpha": None,                # regularisation
-    "pce_beta": 0.5,                  # loss function parameter
-}
+Route-stage policy keys can override the GAP-stage policy by using the `route_` prefix, for example `route_ansatz_type`, `route_vqe_reps`, `route_reps`, `route_measurement_mode`, `route_cvar_alpha`, `route_pce_k`, `route_pce_depth`, `route_qrao_max_vars_per_qubit`, and `route_rounding`.
+
+## Instances
+
+The CVRP workflow instances are physically stored in `individual/cvrp/`:
+
+### Training / Curriculum Instances
+
+```text
+cvrp_8_s0  -> Synth-n9-k2-s0.vrp     (8 customers, 2 vehicles)
+cvrp_8_s1  -> Synth-n9-k2-s1.vrp     (8 customers, 2 vehicles)
+cvrp_8_s2  -> Synth-n9-k2-s2.vrp     (8 customers, 2 vehicles)
+cvrp_9_s0  -> Synth-n10-k3-s0.vrp    (9 customers, 3 vehicles)
+cvrp_10_s0 -> Synth-n11-k2-s0.vrp    (10 customers, 2 vehicles)
+cvrp_10_s1 -> Synth-n11-k2-s1.vrp    (10 customers, 2 vehicles)
+cvrp_12_s0 -> Synth-n13-k3-s0.vrp    (12 customers, 3 vehicles)
 ```
 
-**QRAO-specific:**
-```python
-{
-    "qrao_max_vars_per_qubit": 3,     # compression ratio (1, 2, or 3)
-    "rounding": "semideterministic",  # also: "magic"
-}
+### Held-Out Test Instances
+
+```text
+final_e13  -> E-n13-k4.vrp           (12 customers, 4 vehicles)
 ```
 
-## Solver implementation details
+Final testing uses only `cvrp_benchmark_e13`: the E-n13-k4 benchmark.
 
-Read these files to understand what each solver does:
+The synthetic instances are small enough for quantum simulation but harder than the toy notebook case. They use tight capacities, ambiguous angular sectors, and clustered coordinates.
 
-- `autoqresearch/solvers/qubo_primitives.py` — VQE and QAOA solvers for QUBO problems (MIS, knapsack). Contains `solve_qubo_vqe()`, `solve_qubo_qaoa()`, `solve_qubo_pce()`, warm-start QAOA, multi-angle QAOA, all ansatz builders, CVaR cost function, and solution extraction with concentration guard.
-- `autoqresearch/solvers/pce_solver.py` — PCE solver wrapper. Routes MIS to `solve_qubo_pce()` which converts QUBO → weighted MaxCut.
-- `autoqresearch/solvers/qrao_solver.py` — QRAO solver. Uses 3:1 qubit compression with semideterministic or magic rounding.
-- `autoqresearch/solvers/maxcut_primitives.py` — MaxCut-native solvers (for reference, not directly used for MIS).
+## Evaluation Workflow
 
-## Sampling concentration signal
+The agent should execute the following stages in order. Do not skip stages.
 
-Each attempt prints `top1_prob` and a `top10` summary showing the 10 most-probable bitstrings with their counts, number of selected nodes, and feasibility (F=feasible, X=infeasible).
+### Stage 1: Verify 12-Customer Fix
 
-- If `top1_prob < 0.01` and all top counts are 1-3, the circuit produces **uniform noise** — the concentration guard rejects this and returns gap=1.0.
-- If `top1_prob > 0.05` with a clear winner, the circuit has learned something meaningful.
-- Use this signal to decide: increase depth? switch ansatz? increase shots? switch family?
+First, confirm the repair and hybrid improvements work on the previously infeasible 12-customer instances:
 
-## Agent journal
+```bash
+./.venv/bin/python evaluate_policy.py --suite cvrp_curriculum_12 --workflow split --split train
+```
 
-Maintain `agent_journal.md`. Before every edit, log:
-1. **Hypothesis**: what you're trying and why
-2. **Failure signal**: what observed issue motivated this experiment (for example low `top1_prob`, low feasibility rate, stagnation, or excessive runtime)
-3. **Degrees of freedom exercised**: which solver knobs or families you are changing
-4. **Change summary**: one-line description
+Confirm `suite_average_gap < 1.0` and all instances are feasible. Record the gap and per-instance results.
 
-After each evaluation, log:
-5. **Result**: KEEP/DISCARD, `suite_average_gap`, and per-instance gaps
-6. **Wall time**: total evaluation time
-7. **Analysis**: what you learned, what to try next
+### Stage 2: Run E-n13 Benchmark
 
-## Autonomous loop
+```bash
+./.venv/bin/python evaluate_policy.py --suite cvrp_benchmark_e13 --workflow final
+```
 
-### Before your first edit
+Record the gap, feasibility, qubits used, and wall time.
 
-1. Read solver files to understand what is available.
-2. **Run the baseline scout.** Do NOT edit `experiment.py` first. Run the unmodified policy on the first curriculum stage:
-   ```bash
-   ./.venv/bin/python agent_harness.py --single-run --suite mis_curriculum_16 --eval-workflow scout --no-dev
-   ```
-   The harness will automatically record this as experiment #0 (baseline) with the checked-in VQE RealAmplitudes depth=1 policy. This seeds the 16-node scout incumbent.
-3. Log the baseline scout `suite_average_gap` as entry #0 in your journal.
-4. **Plan your exploration.** Write an initial roadmap in your journal using the available degrees of freedom above. This roadmap is provisional: refine it as evidence comes in. Do not pre-commit to exhaustive coverage of weak branches.
+### Stage 3: Generate Route Comparison Plots
 
-### Each iteration
+After all evaluations, generate route comparison plots for every instance. Each plot should show side-by-side:
+- **Left panel**: The Gurobi/classical optimal routes (reference solution)
+- **Right panel**: The quantum/hybrid routes found by the solver
 
-1. Log hypothesis in the journal, including the observed failure mode that motivated the experiment.
-2. Edit policy functions in `experiment.py`.
-3. Optionally probe on `mis_probe_16` via `evaluate_policy.py --workflow split --split train --no-artifacts`.
-4. During search, run the stage-appropriate scout eval:
-   - stage 1: `--suite mis_curriculum_16 --eval-workflow scout --no-dev`
-   - stage 2: `--suite mis_curriculum_32 --eval-workflow scout --no-dev`
-   - stage 3: `--suite mis_curriculum_48 --eval-workflow scout --no-dev`
-5. Log scout result and analysis.
-6. When the wall-clock budget expires or progress plateaus, run `--promote-beam` for that stage.
-7. Log the confirmed stage winner separately from the scout history.
-8. Repeat.
+Both panels should display:
+- Customer locations as numbered dots, depot as a star
+- Vehicle routes as colored lines (one color per vehicle)
+- Customer demands as annotations
+- Total routed cost in the title
+- Vehicle loads and capacities in a legend
 
-### Stopping — ONLY after validation
+Save plots to `cvrp_results/plots/`:
 
-**DO NOT STOP EARLY.** You must complete the full research protocol:
+```text
+cvrp_results/plots/route_comparison_Synth-n13-k3-s0.png
+cvrp_results/plots/route_comparison_E-n13-k4.png
+```
 
-1. Run at least 15 training iterations across scout stages (more is better).
-2. Document that the explored families/knobs were chosen from evidence, and note which families were ruled out early and why.
-3. For each stage, distinguish clearly in the journal between:
-   - scout leader(s) on the cheap proxy
-   - promoted beam candidates
-   - confirmed stage winner on the full suite
-4. Before moving from 16 → 32 or 32 → 48, first restore the best confirmed snapshot from the previous stage. Then seed the next scout stage with that policy unchanged.
-5. Run the held-out final suite on the final best policy:
-   ```bash
-   ./.venv/bin/python evaluate_policy.py --suite mis_curriculum_64 --workflow final --no-artifacts
-   ```
-6. Run post-lock paper validation on the held-out suite:
-   ```bash
-   ./.venv/bin/python evaluate_policy.py --suite mis_curriculum_64 --workflow robustness --seed-list 17,23,29,31,37 --no-artifacts
-   ./.venv/bin/python evaluate_policy.py --suite mis_curriculum_64 --workflow final --classical-baseline greedy_min_degree --no-artifacts
-   ./.venv/bin/python evaluate_policy.py --suite mis_curriculum_64 --workflow final --classical-baseline random_feasible --seed-override 23 --no-artifacts
-   ```
-   When artifacts are enabled, the evaluator will also emit stage-winner resource tables plus family-scaling and Pareto-frontier outputs.
-7. Write a final summary in `agent_journal.md` covering:
-   - Best policy found and its confirmed `suite_average_gap`
-   - The confirmed gaps at each curriculum stage (16, 32, 48)
-   - Which families/variants worked best and which failed
-   - Which hyperparameters mattered most
-   - Key insights and surprising findings
-   - Validation result on the unseen retained 64-node instance
-8. **Only then** are you done.
+### Stage 4: Write Detailed Results Report
 
-If you are running low on context or time, do NOT silently stop. Instead: run the validation, write the summary, and finish cleanly. Never leave the run in an incomplete state.
+Write a results summary to `cvrp_results/benchmark_report.md` containing:
 
-### Rules
+1. **Executive summary**: One paragraph on what worked and what the overall quality is.
+2. **Per-instance results table**: Instance name, customers, vehicles, optimal cost, quantum cost, gap, qubits, ambiguous customers, wall time, feasibility.
+3. **Scaling analysis**: How gap and qubits scale through the curriculum and E-n13 benchmark.
+4. **Route quality discussion**: Notable patterns in which customers are misassigned vs optimal.
+5. **Resource table**: Per-stage circuit metrics (qubits, depth, parameters, CNOT count).
 
-- One conceptual change per iteration.
-- Do not repeat failed strategies.
-- Touch all solver families unless early evidence rules one out. If you rule one out, say why in the journal.
-- Every experiment must be justified by an observed failure mode or a concrete transfer hypothesis.
-- Record wall time for every run. If a method is slow but effective, note the tradeoff.
-- **Curriculum-aware, size-aware policies are encouraged**: use `problem.num_variables` to set different hyperparameters for 16-node vs 32-node vs 48-node regimes.
+## Suites
 
-## Readable files
+Fast probe:
 
-- `experiment.py` — your code
-- `agent_journal.md` — your research notebook
-- `experiment_log.jsonl` — evaluation history (KEEP/DISCARD decisions)
-- `beam_state.json` — active scout beam per curriculum stage
-- `beam_history.jsonl` — beam entries that were admitted during scout search
-- `promotion_log.jsonl` — confirmation runs for promoted beam candidates
-- `instance_results.jsonl` — per-instance results with gap, policy, wall time for each graph
-- `experiment_diffs/*.patch` — archived diffs
-- `policy_checkpoints/` — snapshot copies of promoted scout candidates
-- `suite_results.tsv` — evaluation ledger (suite-level averages)
-- `plots/` — stage-specific scout trajectories, promotion comparisons, overview, and heatmap
-- `paper_analysis/` — robustness summaries, stage-winner resource tables, scaling tables, and Pareto tables
-- `progress.png` — legacy copy of the curriculum overview plot
-- `autoqresearch/solvers/` — solver implementations
-- `autoqresearch/problems/mis.py` — MIS problem definition
-- `individual/mis/` — benchmark instance files
+```bash
+./.venv/bin/python evaluate_policy.py --suite cvrp_scout_8 --workflow split --split train --no-artifacts
+```
+
+Baseline scout:
+
+```bash
+./.venv/bin/python agent_harness.py --single-run --suite cvrp_curriculum_8 --eval-workflow scout --no-dev --branch codex/cvrp01
+```
+
+Stage 1 scout and promotion:
+
+```bash
+./.venv/bin/python agent_harness.py --suite cvrp_curriculum_8 --eval-workflow scout --wall-clock-budget 1800 --beam-width 5 --no-dev --branch codex/cvrp01
+./.venv/bin/python agent_harness.py --suite cvrp_curriculum_8 --promote-beam --promote-top-k 3 --restore-best --branch codex/cvrp01
+```
+
+Stage 2 scout and promotion:
+
+```bash
+./.venv/bin/python agent_harness.py --suite cvrp_curriculum_10 --eval-workflow scout --wall-clock-budget 2400 --beam-width 5 --no-dev --branch codex/cvrp01
+./.venv/bin/python agent_harness.py --suite cvrp_curriculum_10 --promote-beam --promote-top-k 3 --restore-best --branch codex/cvrp01
+```
+
+Stage 3 single 12-customer run:
+
+```bash
+./.venv/bin/python evaluate_policy.py --suite cvrp_curriculum_12 --workflow split --split train
+```
+
+Held-out final (E-n13):
+
+```bash
+./.venv/bin/python evaluate_policy.py --suite cvrp_benchmark_e13 --workflow final
+```
+
+## Plotting And Artifacts
+
+CVRP reuses the MIS suite plotting logic: scout trajectories, promotion comparisons, curriculum overview, progress2 view, instance heatmap, family scaling, and Pareto frontier. The 12-customer stage is plotted as the single explicit split run, not as a scout trajectory. For CVRP suites, the paths are rooted at `cvrp_results/`:
+
+```text
+cvrp_results/suite_results.tsv
+cvrp_results/suite_history.jsonl
+cvrp_results/instance_results.jsonl
+cvrp_results/plots/
+cvrp_results/progress.png
+cvrp_results/progress2.png
+cvrp_results/experiment_log.jsonl
+cvrp_results/experiment_diffs/
+cvrp_results/policy_checkpoints/
+cvrp_results/beam_state.json
+cvrp_results/beam_history.jsonl
+cvrp_results/promotion_log.jsonl
+cvrp_results/benchmark_report.md
+```
+
+Route comparison plots go in `cvrp_results/plots/route_comparison_*.png`.
+
+## Journal
+
+Maintain `cvrp_results/agent_journal.md`. Before every edit, record:
+
+1. Hypothesis
+2. Failure signal
+3. Degrees of freedom exercised
+4. Change summary
+
+After every evaluation, record:
+
+1. Result: KEEP or DISCARD
+2. `suite_average_gap` and per-instance gaps
+3. Wall time
+4. Feasibility notes
+5. Next experiment
+
+Start by running the baseline scout and logging it as iteration 0.

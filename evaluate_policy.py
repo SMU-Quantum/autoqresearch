@@ -54,10 +54,41 @@ SCALING_TABLE = PAPER_ANALYSIS_DIR / "family_scaling.tsv"
 PARETO_TABLE = PAPER_ANALYSIS_DIR / "kept_pareto.tsv"
 SCALING_PLOT = PLOTS_DIR / "family_scaling.png"
 PARETO_PLOT = PLOTS_DIR / "kept_pareto_frontier.png"
+CVRP_ARTIFACT_ROOT = Path("cvrp_results")
 
 MIS_RANDOM_BASELINE_SAMPLES = 1024
 DEFAULT_ROBUSTNESS_SEEDS = (17, 23, 29, 31, 37)
-QUANTUM_FAMILIES = ("vqe", "qaoa", "pce", "qrao")
+QUANTUM_FAMILIES = ("vqe", "qaoa", "pce", "qrao", "hybrid")
+
+
+def _use_cvrp_artifact_root() -> None:
+    """Route CVRP suite outputs away from the MIS artifact files."""
+    global SUITE_RESULTS, SUITE_HISTORY, PLOTS_DIR, SUITE_PROGRESS_PLOT
+    global LEGACY_PROGRESS_PLOT, KARPATHY_PROGRESS_PLOT, KARPATHY_PROGRESS_PLOT_COPY
+    global INSTANCE_RESULTS, BEAM_HISTORY, PROMOTION_LOG, PAPER_ANALYSIS_DIR
+    global ROBUSTNESS_LOG, RESOURCE_TABLE, ROBUSTNESS_INSTANCE_TABLE
+    global ROBUSTNESS_SUITE_TABLE, SCALING_TABLE, PARETO_TABLE, SCALING_PLOT, PARETO_PLOT
+
+    root = CVRP_ARTIFACT_ROOT
+    SUITE_RESULTS = root / "suite_results.tsv"
+    SUITE_HISTORY = root / "suite_history.jsonl"
+    PLOTS_DIR = root / "plots"
+    SUITE_PROGRESS_PLOT = PLOTS_DIR / "curriculum_overview.png"
+    LEGACY_PROGRESS_PLOT = root / "progress.png"
+    KARPATHY_PROGRESS_PLOT = root / "progress2.png"
+    KARPATHY_PROGRESS_PLOT_COPY = PLOTS_DIR / "progress2.png"
+    INSTANCE_RESULTS = root / "instance_results.jsonl"
+    BEAM_HISTORY = root / "beam_history.jsonl"
+    PROMOTION_LOG = root / "promotion_log.jsonl"
+    PAPER_ANALYSIS_DIR = root / "paper_analysis"
+    ROBUSTNESS_LOG = PAPER_ANALYSIS_DIR / "robustness_results.jsonl"
+    RESOURCE_TABLE = PAPER_ANALYSIS_DIR / "stage_winner_resources.tsv"
+    ROBUSTNESS_INSTANCE_TABLE = PAPER_ANALYSIS_DIR / "robustness_instances.tsv"
+    ROBUSTNESS_SUITE_TABLE = PAPER_ANALYSIS_DIR / "robustness_suites.tsv"
+    SCALING_TABLE = PAPER_ANALYSIS_DIR / "family_scaling.tsv"
+    PARETO_TABLE = PAPER_ANALYSIS_DIR / "kept_pareto.tsv"
+    SCALING_PLOT = PLOTS_DIR / "family_scaling.png"
+    PARETO_PLOT = PLOTS_DIR / "kept_pareto_frontier.png"
 
 # The reduced sparse-only 64-node point was retained for reporting after the
 # later rerun-only final record was dropped from the filtered logs.
@@ -184,6 +215,40 @@ MIS_SCOUT_48_SUITE = [
      "notes": "48-node scout sparse variant (MIS=15)", "size": 48, "seed": 0},
 ]
 
+# ── CVRP staged GAP/TSP QUBO suites ────────────────────────────────
+CVRP_SCOUT_8_SUITE = [
+    {"problem": "cvrp_8_s0", "difficulty": "medium", "time_budget": 300,
+     "notes": "8-customer synthetic CVRP scout", "size": 8, "seed": 0},
+    {"problem": "cvrp_8_s1", "difficulty": "medium", "time_budget": 300,
+     "notes": "8-customer alternate synthetic CVRP scout", "size": 8, "seed": 1},
+]
+
+CVRP_CURRICULUM_8_SUITE = [
+    {"problem": "cvrp_8_s0", "difficulty": "medium", "time_budget": 420,
+     "notes": "8-customer staged CVRP training target", "size": 8, "seed": 0},
+    {"problem": "cvrp_8_s1", "difficulty": "medium", "time_budget": 420,
+     "notes": "8-customer staged CVRP alternate seed", "size": 8, "seed": 1},
+    {"problem": "cvrp_8_s2", "difficulty": "hard", "time_budget": 420,
+     "notes": "8-customer staged CVRP tighter seed", "size": 8, "seed": 2},
+]
+
+CVRP_CURRICULUM_10_SUITE = [
+    {"problem": "cvrp_10_s0", "difficulty": "hard", "time_budget": 600,
+     "notes": "10-customer staged CVRP scale-up", "size": 10, "seed": 0},
+    {"problem": "cvrp_10_s1", "difficulty": "hard", "time_budget": 600,
+     "notes": "10-customer staged CVRP alternate seed", "size": 10, "seed": 1},
+]
+
+CVRP_CURRICULUM_12_SUITE = [
+    {"problem": "cvrp_12_s0", "difficulty": "hard", "time_budget": 900,
+     "notes": "12-customer staged CVRP scale-up", "size": 12, "seed": 0},
+]
+
+CVRP_BENCHMARK_E13_SUITE = [
+    {"problem": "cvrp_file_E-n13-k4", "difficulty": "hard", "time_budget": 1200,
+     "notes": "E-n13-k4 CVRPLIB benchmark final test", "size": 12, "seed": 0},
+]
+
 # Each entry: (size, seed_offset, difficulty, time_budget_seconds, notes)
 QUICK_SUITE_BLUEPRINT = [
     (8, 0, "easy", 120, "small loose instance"),
@@ -232,6 +297,11 @@ SUITES = {
     "mis_scout_16": MIS_SCOUT_16_SUITE,
     "mis_scout_32": MIS_SCOUT_32_SUITE,
     "mis_scout_48": MIS_SCOUT_48_SUITE,
+    "cvrp_scout_8": CVRP_SCOUT_8_SUITE,
+    "cvrp_curriculum_8": CVRP_CURRICULUM_8_SUITE,
+    "cvrp_curriculum_10": CVRP_CURRICULUM_10_SUITE,
+    "cvrp_curriculum_12": CVRP_CURRICULUM_12_SUITE,
+    "cvrp_benchmark_e13": CVRP_BENCHMARK_E13_SUITE,
     "quick": QUICK_SUITE_BLUEPRINT,
     "standard": STANDARD_SUITE_BLUEPRINT,
     "full": FULL_SUITE_BLUEPRINT,
@@ -243,6 +313,8 @@ DIRECT_SPEC_SUITES = {
     "mis_probe_16", "mis_validate_64",
     "mis_curriculum_16", "mis_curriculum_32", "mis_curriculum_48", "mis_curriculum_64",
     "mis_scout_16", "mis_scout_32", "mis_scout_48",
+    "cvrp_scout_8", "cvrp_curriculum_8", "cvrp_curriculum_10",
+    "cvrp_curriculum_12", "cvrp_benchmark_e13",
 }
 
 # Candidate-stage plans for the curriculum workflow.
@@ -263,6 +335,21 @@ CURRICULUM_CANDIDATE_PLANS = {
             ("replay_16", "mis_curriculum_16"),
         ],
     },
+    "cvrp_curriculum_8": {
+        "primary_suite": "cvrp_curriculum_8",
+        "guardrails": [],
+    },
+    "cvrp_curriculum_10": {
+        "primary_suite": "cvrp_curriculum_10",
+        "guardrails": [("replay_8", "cvrp_curriculum_8")],
+    },
+    "cvrp_curriculum_12": {
+        "primary_suite": "cvrp_curriculum_12",
+        "guardrails": [
+            ("replay_10", "cvrp_curriculum_10"),
+            ("replay_8", "cvrp_curriculum_8"),
+        ],
+    },
 }
 
 CURRICULUM_SCOUT_PLANS = {
@@ -281,12 +368,30 @@ CURRICULUM_SCOUT_PLANS = {
             ("replay_16", "mis_scout_16"),
         ],
     },
+    "cvrp_curriculum_8": {
+        "primary_suite": "cvrp_scout_8",
+        "guardrails": [],
+    },
+    "cvrp_curriculum_10": {
+        "primary_suite": "cvrp_curriculum_10",
+        "guardrails": [("replay_8", "cvrp_scout_8")],
+    },
+    "cvrp_curriculum_12": {
+        "primary_suite": "cvrp_curriculum_12",
+        "guardrails": [
+            ("replay_10", "cvrp_curriculum_10"),
+            ("replay_8", "cvrp_scout_8"),
+        ],
+    },
 }
 
 CURRICULUM_CONFIRM_PLANS = {
     "mis_curriculum_16": CURRICULUM_CANDIDATE_PLANS["mis_curriculum_16"],
     "mis_curriculum_32": CURRICULUM_CANDIDATE_PLANS["mis_curriculum_32"],
     "mis_curriculum_48": CURRICULUM_CANDIDATE_PLANS["mis_curriculum_48"],
+    "cvrp_curriculum_8": CURRICULUM_CANDIDATE_PLANS["cvrp_curriculum_8"],
+    "cvrp_curriculum_10": CURRICULUM_CANDIDATE_PLANS["cvrp_curriculum_10"],
+    "cvrp_curriculum_12": CURRICULUM_CANDIDATE_PLANS["cvrp_curriculum_12"],
 }
 
 
@@ -309,6 +414,10 @@ def _safe_int(value) -> int | None:
         return int(value)
     except (TypeError, ValueError):
         return None
+
+
+def _is_cvrp_artifact_mode() -> bool:
+    return SUITE_RESULTS.parent == CVRP_ARTIFACT_ROOT
 
 
 def _seed_for_split(split: str, offset: int) -> int:
@@ -376,11 +485,18 @@ def _load_experiment_module(experiment_file: Path):
 
 
 def _load_problem(problem_spec: str):
-    from autoqresearch.problems.registry import get_mis_file_instance, get_single_instance
+    from autoqresearch.problems.registry import (
+        get_cvrp_file_instance,
+        get_single_instance,
+        get_mis_file_instance,
+    )
 
     if problem_spec.startswith("mis_file_"):
         filename = problem_spec[len("mis_file_"):]
         return get_mis_file_instance(filename)
+    if problem_spec.startswith("cvrp_file_"):
+        filename = problem_spec[len("cvrp_file_"):]
+        return get_cvrp_file_instance(filename)
 
     parts = problem_spec.split("_")
     if len(parts) < 2:
@@ -1177,6 +1293,8 @@ def _load_suite_result_rows(results_path: Path) -> list[dict]:
 
 
 def _stage_suite_names() -> tuple[str, ...]:
+    if _is_cvrp_artifact_mode():
+        return ("cvrp_curriculum_8", "cvrp_curriculum_10", "cvrp_curriculum_12")
     return ("mis_curriculum_16", "mis_curriculum_32", "mis_curriculum_48")
 
 
@@ -1186,8 +1304,29 @@ def _stage_label(suite_name: str) -> str:
         "mis_curriculum_32": "32-node stage",
         "mis_curriculum_48": "48-node stage",
         "mis_curriculum_64": "64-node held-out",
+        "cvrp_curriculum_8": "8-customer stage",
+        "cvrp_curriculum_10": "10-customer stage",
+        "cvrp_curriculum_12": "12-customer stage",
+        "cvrp_benchmark_e13": "E-n13 held-out",
     }
+    if suite_name == "mis_curriculum_64" and _is_cvrp_artifact_mode():
+        return mapping["cvrp_benchmark_e13"]
     return mapping.get(suite_name, suite_name)
+
+
+def _scout_suite_for_stage(stage_suite: str) -> str:
+    mapping = {
+        "cvrp_curriculum_8": "cvrp_scout_8",
+        "cvrp_curriculum_10": "cvrp_curriculum_10",
+        "cvrp_curriculum_12": "cvrp_curriculum_12",
+    }
+    if stage_suite in mapping:
+        return mapping[stage_suite]
+    return stage_suite.replace("mis_curriculum_", "mis_scout_")
+
+
+def _final_suite_name() -> str:
+    return "cvrp_benchmark_e13" if _is_cvrp_artifact_mode() else "mis_curriculum_64"
 
 
 def _compact_progress_policy_label(row: dict) -> str:
@@ -1238,7 +1377,7 @@ def _problem_sort_key(problem: str, size_hint: int | None = None) -> tuple[int, 
 def _problem_display_name(problem: str) -> str:
     if not problem:
         return "?"
-    return problem.replace("mis_file_", "")
+    return problem.replace("mis_file_", "").replace("cvrp_file_", "")
 
 
 def _latest_promotion_summaries(records: list[dict]) -> dict[str, dict]:
@@ -1296,10 +1435,23 @@ def _best_suite_row(
     return candidates[0]
 
 
+def _single_instance_stage_row(suite_rows: list[dict], suite_name: str) -> dict | None:
+    if not (_is_cvrp_artifact_mode() and suite_name == "cvrp_curriculum_12"):
+        return None
+    return _best_suite_row(
+        suite_rows,
+        workflow="split",
+        split="train",
+        suite_name=suite_name,
+    )
+
+
 def _final_suite_row_with_override(
     suite_rows: list[dict],
     suite_name: str = "mis_curriculum_64",
 ) -> dict | None:
+    if suite_name == "mis_curriculum_64" and _is_cvrp_artifact_mode():
+        suite_name = "cvrp_benchmark_e13"
     actual = _best_suite_row(
         suite_rows,
         workflow="final",
@@ -1339,6 +1491,8 @@ def _final_suite_row_with_override(
 
 def _instance_records_with_overrides(instance_records: list[dict]) -> list[dict]:
     records = list(instance_records)
+    if _is_cvrp_artifact_mode():
+        return records
     present_problems = {
         str(record.get("problem", ""))
         for record in records
@@ -1440,6 +1594,8 @@ def _stage_resource_rows(
     row_specs: list[tuple[str, str, str, int]] = []
     for suite_name in _stage_suite_names():
         summary = promotion_summaries.get(suite_name, {})
+        stage_label = _stage_label(suite_name)
+        split_name = "train"
         try:
             group_id = int(summary.get("best_confirm_eval_group_id", 0) or 0)
         except (TypeError, ValueError):
@@ -1455,17 +1611,27 @@ def _stage_resource_rows(
                 group_id = int((fallback_row or {}).get("eval_group_id", 0) or 0)
             except (TypeError, ValueError):
                 group_id = 0
+        if group_id <= 0:
+            single_row = _single_instance_stage_row(suite_rows, suite_name)
+            try:
+                group_id = int((single_row or {}).get("eval_group_id", 0) or 0)
+            except (TypeError, ValueError):
+                group_id = 0
+            if group_id > 0:
+                stage_label = f"{_stage_label(suite_name)} single run"
+                split_name = "train"
         if group_id > 0:
-            row_specs.append((_stage_label(suite_name), suite_name, "train", group_id))
+            row_specs.append((stage_label, suite_name, split_name, group_id))
 
-    final_row = _final_suite_row_with_override(suite_rows, "mis_curriculum_64")
+    final_suite_name = _final_suite_name()
+    final_row = _final_suite_row_with_override(suite_rows, final_suite_name)
     if final_row:
         try:
             final_group_id = int(final_row.get("eval_group_id", 0) or 0)
         except (TypeError, ValueError):
             final_group_id = 0
         if final_group_id != 0:
-            row_specs.append((_stage_label("mis_curriculum_64"), "mis_curriculum_64", "test", final_group_id))
+            row_specs.append((_stage_label(final_suite_name), final_suite_name, "test", final_group_id))
 
     rows: list[dict] = []
     for stage_label, suite_name, split_name, group_id in row_specs:
@@ -1576,6 +1742,7 @@ def _plot_family_scaling(rows: list[dict], output_path: Path) -> bool:
         "qaoa": "#ff7f0e",
         "pce": "#2ca02c",
         "qrao": "#d62728",
+        "hybrid": "#16a085",
     }
 
     fig, ax = plt.subplots(figsize=(9.5, 5.8))
@@ -1736,9 +1903,10 @@ def _plot_pareto_frontier(
             if matching_rows:
                 highlight_points.append((_stage_label(suite_name), matching_rows[-1]))
 
-    final_row = _final_suite_row_with_override(suite_rows, "mis_curriculum_64")
+    final_suite_name = _final_suite_name()
+    final_row = _final_suite_row_with_override(suite_rows, final_suite_name)
     if final_row is not None:
-        highlight_points.append((_stage_label("mis_curriculum_64"), final_row))
+        highlight_points.append((_stage_label(final_suite_name), final_row))
 
     seen_labels: set[str] = set()
     for label, point in highlight_points:
@@ -2033,17 +2201,17 @@ def _plot_curriculum_overview(
     stage_suites = list(_stage_suite_names())
     scout_values = []
     confirm_values = []
+    single_run_values = []
     for suite in stage_suites:
         scout_gap = _safe_float((promotion_summaries.get(suite, {}).get("best_beam_metrics") or {}).get("train_suite_average_gap"))
         if scout_gap is None:
-            scout_suite = suite.replace("mis_curriculum_", "mis_scout_")
+            scout_suite = _scout_suite_for_stage(suite)
             scout_gap = _best_suite_gap(
                 suite_rows,
                 workflow="scout",
                 split="train",
                 suite_name=scout_suite,
             )
-        scout_values.append(scout_gap)
 
         confirm_gap = _safe_float((promotion_summaries.get(suite, {}).get("best_confirm_metrics") or {}).get("train_suite_average_gap"))
         if confirm_gap is None:
@@ -2053,12 +2221,20 @@ def _plot_curriculum_overview(
                 split="train",
                 suite_name=suite,
             )
-        confirm_values.append(confirm_gap)
+        single_row = _single_instance_stage_row(suite_rows, suite)
+        single_gap = _safe_float((single_row or {}).get("suite_average_gap"))
+        if single_gap is not None:
+            scout_gap = None
+            confirm_gap = None
 
-    final_row = _final_suite_row_with_override(suite_rows, "mis_curriculum_64")
+        scout_values.append(scout_gap)
+        confirm_values.append(confirm_gap)
+        single_run_values.append(single_gap)
+
+    final_row = _final_suite_row_with_override(suite_rows, _final_suite_name())
     final_gap = _safe_float((final_row or {}).get("suite_average_gap"))
 
-    if not any(value is not None for value in scout_values + confirm_values) and final_gap is None:
+    if not any(value is not None for value in scout_values + confirm_values + single_run_values) and final_gap is None:
         return False
 
     fig, ax = plt.subplots(figsize=(10.5, 6))
@@ -2079,15 +2255,41 @@ def _plot_curriculum_overview(
             ax.text(x[idx] + offset, value + 0.02, f"{value:.3f}", ha="center", va="bottom", fontsize=8)
             plotted = True
 
+    plotted_single = False
+    for idx, value in enumerate(single_run_values):
+        if value is None:
+            continue
+        ax.bar(
+            x[idx],
+            value,
+            width=0.42,
+            color="#16a085",
+            alpha=0.95,
+            label="Single 12-customer run" if not plotted_single else None,
+        )
+        ax.text(x[idx], value + 0.02, f"{value:.3f}", ha="center", va="bottom", fontsize=8)
+        plotted_single = True
+
+    if _is_cvrp_artifact_mode():
+        final_label = "Held-out E-n13 final"
+        xtick_labels = ["8", "10", "12", "E-n13 final"]
+        title = "Curriculum Overview — Stage Results and Held-out Final"
+        footnote = "The 12-customer point is the retained single-instance split run; E-n13-k4 is the held-out benchmark final."
+    else:
+        final_label = "Held-out 64 final"
+        xtick_labels = ["16", "32", "48 (1 inst.)", "64 final (1 inst.)"]
+        title = "Curriculum Overview — Proxy Search, Confirmed Winners, Held-out Final"
+        footnote = "48- and 64-node points are single-instance runs because those sizes are compute-heavy."
+
     final_x = len(stage_suites) + 0.1
     if final_gap is not None:
-        ax.bar(final_x, final_gap, width=0.42, color="#e67e22", alpha=0.95, label="Held-out 64 final")
+        ax.bar(final_x, final_gap, width=0.42, color="#e67e22", alpha=0.95, label=final_label)
         ax.text(final_x, final_gap + 0.02, f"{final_gap:.3f}", ha="center", va="bottom", fontsize=8)
 
     ax.set_xticks(list(x) + [final_x])
-    ax.set_xticklabels(["16", "32", "48 (1 inst.)", "64 final (1 inst.)"])
+    ax.set_xticklabels(xtick_labels)
     ax.set_ylabel("Suite Average Gap", fontsize=11)
-    ax.set_title("Curriculum Overview — Proxy Search, Confirmed Winners, Held-out Final", fontsize=14, fontweight="bold")
+    ax.set_title(title, fontsize=14, fontweight="bold")
     ax.grid(axis="y", alpha=0.18, linestyle="--")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -2095,7 +2297,7 @@ def _plot_curriculum_overview(
     fig.text(
         0.5,
         0.015,
-        "48- and 64-node points are single-instance runs because those sizes are compute-heavy.",
+        footnote,
         ha="center",
         fontsize=9,
         color="#5d6d7e",
@@ -2126,6 +2328,7 @@ def _plot_instance_heatmap(
     row_specs: list[tuple[str, int]] = []
     for suite_name in _stage_suite_names():
         summary = promotion_summaries.get(suite_name, {})
+        label = f"{_stage_label(suite_name)} confirm"
         group_id = summary.get("best_confirm_eval_group_id")
         try:
             group_id_int = int(group_id)
@@ -2141,12 +2344,20 @@ def _plot_instance_heatmap(
             except (TypeError, ValueError):
                 group_id_int = 0
         if group_id_int == 0:
+            single_row = _single_instance_stage_row(suite_rows, suite_name)
+            try:
+                group_id_int = int((single_row or {}).get("eval_group_id", 0) or 0)
+            except (TypeError, ValueError):
+                group_id_int = 0
+            if group_id_int != 0:
+                label = f"{_stage_label(suite_name)} single run"
+        if group_id_int == 0:
             continue
-        row_specs.append((f"{_stage_label(suite_name)} confirm", group_id_int))
+        row_specs.append((label, group_id_int))
 
-    final_row = _final_suite_row_with_override(suite_rows, "mis_curriculum_64")
+    final_row = _final_suite_row_with_override(suite_rows, _final_suite_name())
     if final_row:
-        row_specs.append(("64-node held-out final", int(final_row.get("eval_group_id", 0))))
+        row_specs.append((f"{_stage_label(_final_suite_name())} final", int(final_row.get("eval_group_id", 0))))
 
     if not row_specs:
         return False
@@ -2197,7 +2408,7 @@ def _plot_instance_heatmap(
     ax.set_xticklabels([_problem_display_name(problem) for problem in problems], rotation=55, ha="right", fontsize=8)
     ax.set_yticks(range(len(row_specs)))
     ax.set_yticklabels([label for label, _ in row_specs], fontsize=9)
-    ax.set_title("Per-instance Optimality Gaps — Confirmed Stage Winners and Final Test", fontsize=14, fontweight="bold")
+    ax.set_title("Per-instance Optimality Gaps — Stage Runs and Final Test", fontsize=14, fontweight="bold")
 
     for i, row in enumerate(matrix):
         for j, value in enumerate(row):
@@ -2226,9 +2437,9 @@ def _plot_progress2_karpathy(
     import matplotlib.pyplot as plt
     from matplotlib.lines import Line2D
 
-    stage_axes: list[tuple[str, str, list[dict], float | None]] = []
+    stage_axes: list[tuple[str, str, list[dict], float | None, dict | None]] = []
     for stage_suite in _stage_suite_names():
-        scout_suite = stage_suite.replace("mis_curriculum_", "mis_scout_")
+        scout_suite = _scout_suite_for_stage(stage_suite)
         rows = [
             row
             for row in suite_rows
@@ -2246,12 +2457,16 @@ def _plot_progress2_karpathy(
                 split="train",
                 suite_name=stage_suite,
             )
-        stage_axes.append((stage_suite, scout_suite, rows, confirm_gap))
+        single_row = _single_instance_stage_row(suite_rows, stage_suite)
+        if single_row is not None:
+            rows = []
+            confirm_gap = None
+        stage_axes.append((stage_suite, scout_suite, rows, confirm_gap, single_row))
 
-    final_row = _final_suite_row_with_override(suite_rows, "mis_curriculum_64")
+    final_row = _final_suite_row_with_override(suite_rows, _final_suite_name())
     final_gap = _safe_float((final_row or {}).get("suite_average_gap"))
 
-    if not any(rows for _, _, rows, _ in stage_axes) and final_gap is None:
+    if not any(rows or single_row is not None for _, _, rows, _, single_row in stage_axes) and final_gap is None:
         return False
 
     fig, axes = plt.subplots(
@@ -2269,8 +2484,36 @@ def _plot_progress2_karpathy(
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
-    for ax, (stage_suite, _, rows, confirm_gap) in zip(axes[:3], stage_axes):
-        if rows:
+    for ax, (stage_suite, _, rows, confirm_gap, single_row) in zip(axes[:3], stage_axes):
+        if single_row is not None:
+            single_gap = _safe_float(single_row.get("suite_average_gap"))
+            if single_gap is not None:
+                ax.scatter(
+                    [1],
+                    [single_gap],
+                    marker="D",
+                    color="#16a085",
+                    edgecolors="#0b5345",
+                    linewidths=1.0,
+                    s=92,
+                    zorder=5,
+                )
+                ax.annotate(
+                    f"run {single_gap:.3f}",
+                    (1, single_gap),
+                    textcoords="offset points",
+                    xytext=(0, 10),
+                    ha="center",
+                    fontsize=8,
+                    color="#0b5345",
+                )
+                ax.set_xticks([1])
+                ax.set_xticklabels(["cvrp_12_s0"], fontsize=8)
+                ax.set_xlim(0.5, 1.5)
+            else:
+                ax.set_xticks([])
+                ax.text(0.5, 0.5, "No 12-customer run", ha="center", va="center", fontsize=9, color="#7f8c8d", transform=ax.transAxes)
+        elif rows:
             x_values = list(range(1, len(rows) + 1))
             discard_x = []
             discard_y = []
@@ -2402,9 +2645,18 @@ def _plot_progress2_karpathy(
 
         stage_title = _stage_label(stage_suite).replace(" stage", "")
         ax.set_title(stage_title, fontsize=12, fontweight="bold")
-        ax.set_xlabel("Scout attempt", fontsize=10)
+        ax.set_xlabel("Single instance run" if single_row is not None else "Scout attempt", fontsize=10)
 
     final_ax = axes[3]
+    if _is_cvrp_artifact_mode():
+        final_tick_label = "E13"
+        final_title = "E-n13 final"
+        final_footnote = "Each panel is stage-local. The 12-customer panel is the retained single-instance run; E-n13 is the retained benchmark run."
+    else:
+        final_tick_label = "1tc.64"
+        final_title = "64-node final"
+        final_footnote = "Each panel is stage-local. The 48-node confirm and 64-node final are retained single-instance large-instance runs."
+
     if final_gap is not None:
         final_ax.scatter(
             [1],
@@ -2426,12 +2678,12 @@ def _plot_progress2_karpathy(
             color="#7f3c08",
         )
         final_ax.set_xticks([1])
-        final_ax.set_xticklabels(["1tc.64"], fontsize=8)
+        final_ax.set_xticklabels([final_tick_label], fontsize=8)
         final_ax.set_xlim(0.5, 1.5)
     else:
         final_ax.set_xticks([])
         final_ax.text(0.5, 0.5, "No final record", ha="center", va="center", fontsize=9, color="#7f8c8d", transform=final_ax.transAxes)
-    final_ax.set_title("64-node final", fontsize=12, fontweight="bold")
+    final_ax.set_title(final_title, fontsize=12, fontweight="bold")
     final_ax.set_xlabel("Retained run", fontsize=10)
 
     axes[0].set_ylabel("Suite Average Gap", fontsize=11)
@@ -2448,12 +2700,17 @@ def _plot_progress2_karpathy(
         Line2D([0], [0], marker="D", color="w", markerfacecolor="#e67e22",
                markeredgecolor="#a04000", markersize=8, label="Confirm / final"),
     ]
-    fig.legend(legend_handles, [handle.get_label() for handle in legend_handles], loc="upper center", ncol=5, fontsize=9, frameon=False, bbox_to_anchor=(0.5, 1.01))
-    fig.suptitle("Stage wise trajectories", fontsize=15, fontweight="bold", y=1.06)
+    if any(single_row is not None for _, _, _, _, single_row in stage_axes):
+        legend_handles.append(
+            Line2D([0], [0], marker="D", color="w", markerfacecolor="#16a085",
+                   markeredgecolor="#0b5345", markersize=8, label="Single run")
+        )
+    fig.legend(legend_handles, [handle.get_label() for handle in legend_handles], loc="upper center", ncol=6, fontsize=9, frameon=False, bbox_to_anchor=(0.5, 1.01))
+    fig.suptitle("Stage-wise results", fontsize=15, fontweight="bold", y=1.06)
     fig.text(
         0.5,
         0.01,
-        "Each panel is stage-local. The 48-node confirm and 64-node final are retained single-instance large-instance runs.",
+        final_footnote,
         ha="center",
         fontsize=9,
         color="#5d6d7e",
@@ -2735,6 +2992,9 @@ def evaluate_workflow(
     seed_values: list[int] | None = None,
 ) -> dict:
     """Run a workflow, log split rows, and return the grouped summary."""
+
+    if suite_name.startswith("cvrp_"):
+        _use_cvrp_artifact_root()
 
     if baseline and classical_baseline is not None:
         raise ValueError("--baseline and --classical-baseline are mutually exclusive.")
